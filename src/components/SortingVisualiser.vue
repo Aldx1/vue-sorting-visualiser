@@ -281,11 +281,3 @@ export default defineComponent({
   stroke-width: 3;
 }
 </style>
-
-function removeClass(arg0: string, highlightedIndices: number[]) { throw new Error('Function not implemented.'); }
-function addClass(arg0: string, highlightedIndices: number[]) { throw new Error('Function not implemented.'); } function
-swapBars(arg0: number, arg1: number) { throw new Error('Function not implemented.'); } function merge(arg0: number,
-arg1: number, arg2: number) { throw new Error('Function not implemented.'); } function mergeAdded(highlightedIndices:
-number[]) { throw new Error('Function not implemented.'); } function updateIndexes(moveUpdatesArr: moveUpdate[]) { throw
-new Error('Function not implemented.'); } function mergeBack(highlightedIndices: number[]) { throw new Error('Function
-not implemented.'); }
