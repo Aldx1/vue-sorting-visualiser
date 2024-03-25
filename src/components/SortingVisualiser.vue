@@ -85,9 +85,24 @@ export default defineComponent({
       });
     };
 
+    const performStep = () => {};
+
+    class moveUpdate {
+      fromIndex: number;
+      toIndex: number;
+      element?: HTMLElement;
+      constructor(fromIndex: number, toIndex: number) {
+        this.fromIndex = fromIndex;
+        this.toIndex = toIndex;
+      }
+    }
+
     let stepCounter = 0;
+    const moveUpdatesArr: moveUpdate[] = [];
+
     watch([numberArray, sortingSteps], () => {
-      console.log(numberArray.value);
+      console.log(sortingSteps.value);
+      //debugger;
       stepCounter = 0;
       clearInternalInterval();
       resetNumberArray();
@@ -98,10 +113,17 @@ export default defineComponent({
               removeClass('compare', currentSortingStep.highlightedIndices);
             } else if (currentSortingStep.type == 'Swap') {
               removeClass('swapped', currentSortingStep.highlightedIndices);
+            } else if (currentSortingStep.type == 'MoveBack') {
+              const indices: number[] = [];
+              let highlighted = currentSortingStep.highlightedIndices;
+              for (let i = highlighted[0]; i <= highlighted[1]; i++) indices.push(i);
+              removeClass('mergeMoveBack', indices);
+              removeClass('mergeAdded', indices);
             }
           }
 
           currentSortingStep = sortingSteps.value[stepCounter];
+
           if (currentSortingStep.type == 'Compare') {
             addClass('compare', currentSortingStep.highlightedIndices);
           }
@@ -112,15 +134,24 @@ export default defineComponent({
           }
 
           if (currentSortingStep.type == 'Merge') {
-            // Highlight left and right array
+            let leftAndRightVals = currentSortingStep.highlightedIndices;
+            merge(leftAndRightVals[0], leftAndRightVals[1], leftAndRightVals[2]);
           }
 
           if (currentSortingStep.type == 'M-Add') {
-            // Move element into merge array
+            if (currentSortingStep.highlightedIndices[0] !== currentSortingStep.highlightedIndices[1]) {
+              moveUpdatesArr.push(
+                new moveUpdate(currentSortingStep.highlightedIndices[0], currentSortingStep.highlightedIndices[1])
+              );
+            }
+
+            mergeAdded(currentSortingStep.highlightedIndices);
           }
 
           if (currentSortingStep.type == 'MoveBack') {
-            // Move elements back from merge into original array
+            updateIndexes(moveUpdatesArr);
+            mergeMoveBack(currentSortingStep.highlightedIndices);
+            moveUpdatesArr.splice(0);
           }
 
           if (currentSortingStep.type == 'Sorted') {
@@ -154,7 +185,7 @@ export default defineComponent({
         } else {
           clearInternalInterval();
         }
-      }, 1000);
+      }, 500);
     });
 
     function swapBars(index1: number, index2: number) {
@@ -176,6 +207,71 @@ export default defineComponent({
         bar2.classList.remove('compare');
       }
     }
+
+    function updateIndexes(moveUpdates?: moveUpdate[]) {
+      moveUpdates?.forEach((element) => {
+        const bar1 = document.querySelector(`[data-index="g-${element.fromIndex}"]`) as HTMLElement;
+        if (bar1) {
+          element.element = bar1;
+        }
+      });
+
+      moveUpdates?.forEach((element) => {
+        if (element.element) {
+          element.element.setAttribute('data-index', `g-${element.toIndex}`);
+        }
+      });
+    }
+
+    function merge(start: number, middle: number, end: number) {
+      const leftArrayIndices: number[] = [];
+      const rightArrayIndices: number[] = [];
+      for (let i = start; i <= middle; i++) leftArrayIndices.push(i);
+      for (let i = middle + 1; i <= end; i++) rightArrayIndices.push(i);
+      addClass('mergeLeft', leftArrayIndices);
+      addClass('mergeRight', rightArrayIndices);
+    }
+
+    function mergeAdded(highlightedIndices: number[]) {
+      const index = highlightedIndices[0];
+      addClass('mergeAdded', [index]);
+      removeClass('mergeLeft', [index]);
+      removeClass('mergeRight', [index]);
+
+      const mergeIndex = highlightedIndices[1];
+
+      let transform = `translate(${barXPlacement.value + mergeIndex * (barWidth.value + barSpacing.value)}px, 150px)`;
+
+      const bar1 = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
+      //const bar2 = document.querySelector(`[data-index="g-${mergeIndex}"]`) as HTMLElement;
+      if (bar1) {
+        bar1.style.transform = transform;
+      }
+    }
+
+    function mergeMoveBack(highlightedIndices: number[]) {
+      const indices = [];
+      for (let i = highlightedIndices[0]; i <= highlightedIndices[1]; i++) {
+        const mergeIndex = i;
+        let transform = `translate(${barXPlacement.value + mergeIndex * (barWidth.value + barSpacing.value)}px, 0px)`;
+        indices.push(i);
+
+        const bar1 = document.querySelector(`[data-index="g-${mergeIndex}"]`) as HTMLElement;
+        if (bar1) {
+          bar1.style.transform = transform;
+        }
+      }
+      addClass('mergeMoveBack', indices);
+    }
+
+    /* function mergeMoveBack(index: number) {
+      const leftArrayIndices: number[] = [];
+      const rightArrayIndices: number[] = [];
+      for (let i = start; i <= middle; i++) leftArrayIndices.push(i);
+      for (let i = middle + 1; i <= end; i++) rightArrayIndices.push(i);
+      removeClass('mergeLeft', leftArrayIndices);
+      removeClass('mergeRight', rightArrayIndices);
+    } */
 
     function removeClass(className: string, indices: number[]) {
       indices.forEach((index) => {
@@ -212,12 +308,6 @@ export default defineComponent({
   text-anchor: middle;
 }
 
-.compare rect {
-  fill: #960000;
-  stroke: #960000;
-  stroke-width: 1;
-}
-
 .swapped rect {
   fill: #57eb13;
   stroke: #57eb13;
@@ -227,6 +317,36 @@ export default defineComponent({
 .sorted rect {
   fill: #ffa65c;
   stroke: #ffa65c;
+  stroke-width: 1;
+}
+
+.mergeLeft rect {
+  fill: #ea00ff;
+  stroke: #ea00ff;
+  stroke-width: 1;
+}
+
+.mergeRight rect {
+  fill: #041dff;
+  stroke: #041dff;
+  stroke-width: 1;
+}
+
+.compare rect {
+  fill: #960000;
+  stroke: #960000;
+  stroke-width: 1;
+}
+
+.mergeAdded rect {
+  fill: #57eb13;
+  stroke: #57eb13;
+  stroke-width: 1;
+}
+
+.mergeMoveBack rect {
+  fill: #00ffea !important;
+  stroke: #00ffea !important;
   stroke-width: 1;
 }
 

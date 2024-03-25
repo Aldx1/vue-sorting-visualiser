@@ -4,7 +4,7 @@ export default class SortingStep {
   sortedIndices?: number[];
   additionalData: any;
   constructor(
-    type: "Swap" | "Compare" | "Sorted" | "Merge" | "MoveBack" | "M-Add",
+    type: 'Swap' | 'Compare' | 'Sorted' | 'Merge' | 'MoveBack' | 'M-Add',
     highlightedIndices?: number[],
     sortedIndices?: number[],
     additionalData?: any
@@ -23,12 +23,7 @@ export abstract class SortingOperation {
     sortedIndices?: number[],
     additionalData?: any
   ): SortingStep {
-    return new SortingStep(
-      "Swap",
-      [leftIndex, rightIndex],
-      sortedIndices,
-      additionalData
-    );
+    return new SortingStep('Swap', [leftIndex, rightIndex], sortedIndices, additionalData);
   }
 
   public static compare(
@@ -37,30 +32,25 @@ export abstract class SortingOperation {
     sortedIndices?: number[],
     additionalData?: any
   ): SortingStep {
-    return new SortingStep(
-      "Compare",
-      [leftIndex, rightIndex],
-      sortedIndices,
-      additionalData
-    );
+    return new SortingStep('Compare', [leftIndex, rightIndex], sortedIndices, additionalData);
   }
 
   public static sorted(sortedIndices: number[] = []): SortingStep {
-    return new SortingStep("Sorted", undefined, sortedIndices);
+    return new SortingStep('Sorted', undefined, sortedIndices);
   }
 
   public static merge(start: number, middle: number, end: number): SortingStep {
     // Store start, middle, and end indices
-    return new SortingStep("Merge", [start, middle, end]);
+    return new SortingStep('Merge', [start, middle, end]);
   }
 
   public static moveBack(start: number, end: number): SortingStep {
     // Move elements back from merge array to "unsorted array"
-    return new SortingStep("MoveBack", [start, end]);
+    return new SortingStep('MoveBack', [start, end]);
   }
 
-  public static mAdd(addedIndex: number): SortingStep {
+  public static mAdd(addedIndex: number, mergeIndex: number): SortingStep {
     // Add to the merge array
-    return new SortingStep("M-Add", [addedIndex]);
+    return new SortingStep('M-Add', [addedIndex, mergeIndex]);
   }
 }
