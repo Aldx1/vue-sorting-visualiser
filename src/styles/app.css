@@ -1,0 +1,14 @@
+
+.sidebarElementGroup{
+    width: 250px;
+    height: auto;
+}
+
+.sidebarElement{
+    width: 80%;
+    align-items: center;
+}
+
+.sidebar{
+    align-items: center;
+}
