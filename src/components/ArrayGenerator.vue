@@ -1,9 +1,5 @@
 <template>
-  <bcard
-    tag="article"
-    style="max-width: 14rem; color: white"
-    class="m-2 bg-success shadow-lg"
-  >
+  <bcard tag="article" style="max-width: 14rem; color: white" class="m-2 shadow-lg bg-secondary">
     <label for="array-size-range">Array Size: {{ arraySize }}</label>
     <b-form-input
       id="array-size-range"
@@ -15,13 +11,7 @@
       @input="setSize"
     ></b-form-input>
     <label for="btnSelectOrder">Array Order:</label>
-    <b-dropdown
-      id="btnSelectOrder"
-      split
-      @click="setOrder"
-      :text="arrayOrder"
-      class="m-2"
-    >
+    <b-dropdown id="btnSelectOrder" split @click="setOrder" :text="arrayOrder" variant="primary" class="m-2">
       <b-dropdown-item
         v-for="orderOption in arrayOrderOptions"
         :key="orderOption"
@@ -33,19 +23,19 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
-import { useNumberArrayCreationStore } from "@/store/sortingVisualiserStore";
-import { Components } from "bootstrap-vue-3";
-import { ArrayOrderingOption } from "@/storeModels/ArrayConfigModel";
+import { computed, defineComponent, onMounted, ref } from 'vue';
+import { useNumberArrayCreationStore } from '@/store/sortingVisualiserStore';
+import { Components } from 'bootstrap-vue-3';
+import { ArrayOrderingOption } from '@/storeModels/ArrayConfigModel';
 
 export default defineComponent({
-  name: "ArrayGenerator",
+  name: 'ArrayGenerator',
   components: {
     bcard: Components.BCard,
     btn: Components.BButton,
-    "b-dropdown": Components.BDropdown,
-    "b-dropdown-item": Components.BDropdownItem,
-    "b-form-input": Components.BFormInput,
+    'b-dropdown': Components.BDropdown,
+    'b-dropdown-item': Components.BDropdownItem,
+    'b-form-input': Components.BFormInput,
   },
   setup() {
     const arrayCreationStore = useNumberArrayCreationStore();

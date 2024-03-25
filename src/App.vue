@@ -3,7 +3,7 @@
   <div style="float: left">
     <ArrayGenerator />
     <AlgorithmSelector />
-    <SortingControls />
+    <!-- <SortingControls /> -->
   </div>
   <div v-if="numberArraySet">
     <SortingVisualiser />
@@ -11,17 +11,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import ArrayGenerator from "./components/ArrayGenerator.vue";
-import AlgorithmSelector from "./components/AlgorithmSelector.vue";
-import { useSortingStore } from "./store/sortingVisualiserStore";
-import { storeToRefs } from "pinia";
+import { defineComponent } from 'vue';
+import ArrayGenerator from './components/ArrayGenerator.vue';
+import AlgorithmSelector from './components/AlgorithmSelector.vue';
+import { useSortingStore } from './store/sortingVisualiserStore';
+import { storeToRefs } from 'pinia';
 
-import SortingControls from "./components/SortingControls.vue";
-import SortingVisualiser from "./components/SortingVisualiser.vue";
+import SortingControls from './components/SortingControls.vue';
+import SortingVisualiser from './components/SortingVisualiser.vue';
 
 export default defineComponent({
-  name: "App",
+  name: 'App',
   setup() {
     const sortingStore = useSortingStore();
 

@@ -1,9 +1,5 @@
 <template>
-  <bcard
-    tag="article"
-    style="max-width: 14rem; color: white"
-    class="m-2 bg-success shadow-lg align-items-sm-center"
-  >
+  <bcard tag="article" style="max-width: 14rem; color: white" class="m-2 bg-success shadow-lg align-items-sm-center">
     <btn-toolbar class="m-2">
       <btn-group class="mx-1">
         <btn>&lsaquo;</btn>
@@ -26,17 +22,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { Components } from "bootstrap-vue-3";
+import { defineComponent } from 'vue';
+import { Components } from 'bootstrap-vue-3';
 
 export default defineComponent({
-  name: "SortingControls",
+  name: 'SortingControls',
   components: {
     bcard: Components.BCard,
     btn: Components.BButton,
-    "btn-toolbar": Components.BButtonToolbar,
-    "btn-group": Components.BButtonGroup,
-    "b-form-input": Components.BFormInput,
+    'btn-toolbar': Components.BButtonToolbar,
+    'btn-group': Components.BButtonGroup,
+    'b-form-input': Components.BFormInput,
   },
   setup() {},
 });

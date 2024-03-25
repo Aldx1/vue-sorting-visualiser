@@ -34,11 +34,20 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { computed, defineComponent, watch } from 'vue';
 import { useSortingStore } from '@/store/sortingVisualiserStore';
-
 import { storeToRefs } from 'pinia';
 import SortingStep from '@/sortingAlgorithms/SortingStep';
+import {
+  moveUpdate,
+  performSwap,
+  removeClass,
+  addClass,
+  merge,
+  mergeAdded,
+  mergeBack,
+  updateIndexes,
+} from '../componentHelper/SortingStepHelper';
 
 export default defineComponent({
   name: 'SortingVisualiser',
@@ -85,195 +94,124 @@ export default defineComponent({
       });
     };
 
-    class moveUpdate {
-      fromIndex: number;
-      toIndex: number;
-      element?: HTMLElement;
-      constructor(fromIndex: number, toIndex: number) {
-        this.fromIndex = fromIndex;
-        this.toIndex = toIndex;
+    const moveUpdatesArr: moveUpdate[] = [];
+
+    let intervalCounter = 0;
+    let insertionIndex: number = -1;
+    let selectionIndex: number = -1;
+
+    const playStep = (stepCounter: number) => {
+      // Tidy up previous step
+      if (currentSortingStep) {
+        const { type: sortingStepType, highlightedIndices } = currentSortingStep;
+        switch (sortingStepType) {
+          case 'Compare':
+            removeClass('compare', highlightedIndices);
+            break;
+          case 'Swap':
+            removeClass('swapped', highlightedIndices);
+            break;
+          case 'MergeBack':
+            const indices: number[] = [];
+            for (let i = highlightedIndices[0]; i <= highlightedIndices[1]; i++) indices.push(i);
+            removeClass('mergeBack', indices);
+            removeClass('mergeAdded', indices);
+            break;
+        }
+      }
+
+      // Perform current step
+      currentSortingStep = sortingSteps.value[stepCounter];
+      const { type: sortingStepType, highlightedIndices, sortedIndices, additionalData } = currentSortingStep;
+
+      switch (sortingStepType) {
+        case 'Compare':
+          addClass('compare', highlightedIndices);
+          break;
+        case 'Swap':
+          performSwap(highlightedIndices[0], highlightedIndices[1]);
+          break;
+        case 'Merge':
+          merge(highlightedIndices[0], highlightedIndices[1], highlightedIndices[2]);
+          break;
+        case 'MergeAdd':
+          if (highlightedIndices[0] !== highlightedIndices[1]) {
+            moveUpdatesArr.push(new moveUpdate(highlightedIndices[0], highlightedIndices[1]));
+          }
+          mergeAdded(highlightedIndices, barXPlacement.value, barWidth.value, barSpacing.value);
+          break;
+        case 'MergeBack':
+          updateIndexes(moveUpdatesArr);
+          mergeBack(highlightedIndices, barXPlacement.value, barWidth.value, barSpacing.value);
+          moveUpdatesArr.splice(0);
+          break;
+        case 'Sorted':
+          addClass(
+            'sorted',
+            numberArray.value.map((_, index) => index)
+          );
+          break;
+      }
+
+      addClass('sorted', sortedIndices);
+      handleAdditionalData(additionalData);
+
+      stepCounter++;
+    };
+
+    function handleAdditionalData(additionalData?: any) {
+      if (!additionalData) return;
+
+      // Insertion Sort additional data
+      if (additionalData.insertionIndex) {
+        if (insertionIndex === -1) {
+          insertionIndex = currentSortingStep.additionalData.insertionIndex;
+          addClass('current', [insertionIndex]);
+        } else {
+          if (currentSortingStep.type == 'Swap') insertionIndex = currentSortingStep.highlightedIndices[1];
+
+          removeClass('current', [insertionIndex]);
+          if (currentSortingStep.type !== 'Sorted') {
+            insertionIndex = currentSortingStep.additionalData.insertionIndex;
+            addClass('current', [insertionIndex]);
+          }
+        }
+      }
+
+      // Selection Sort addition data
+      if (additionalData.selection) {
+        if (selectionIndex === -1) {
+          selectionIndex = currentSortingStep.additionalData.selectionIndex;
+          addClass('current', [selectionIndex]);
+        } else {
+          if (currentSortingStep.type == 'Swap') {
+            removeClass('current', currentSortingStep.highlightedIndices);
+          } else {
+            removeClass('current', [selectionIndex]);
+
+            if (currentSortingStep.type !== 'Sorted') {
+              selectionIndex = currentSortingStep.additionalData.selectionIndex;
+              addClass('current', [selectionIndex]);
+            }
+          }
+        }
       }
     }
 
-    let stepCounter = 0;
-    const moveUpdatesArr: moveUpdate[] = [];
-    let insertionCurrent: number;
-
     watch([numberArray, sortingSteps], () => {
-      stepCounter = 0;
+      console.log(sortingSteps.value);
+      intervalCounter = 0;
       clearInternalInterval();
       resetNumberArray();
       interval = setInterval(() => {
-        if (stepCounter < sortingSteps.value.length) {
-          if (currentSortingStep) {
-            if (currentSortingStep.type == 'Compare') {
-              removeClass('compare', currentSortingStep.highlightedIndices);
-            } else if (currentSortingStep.type == 'Swap') {
-              removeClass('swapped', currentSortingStep.highlightedIndices);
-            } else if (currentSortingStep.type == 'MergeBack') {
-              const indices: number[] = [];
-              let highlighted = currentSortingStep.highlightedIndices;
-              for (let i = highlighted[0]; i <= highlighted[1]; i++) indices.push(i);
-              removeClass('mergeBack', indices);
-              removeClass('mergeAdded', indices);
-            }
-          }
-
-          currentSortingStep = sortingSteps.value[stepCounter];
-
-          if (currentSortingStep.type == 'Compare') {
-            addClass('compare', currentSortingStep.highlightedIndices);
-          }
-
-          if (currentSortingStep.type == 'Swap') {
-            const highlightedIndexes = currentSortingStep.highlightedIndices;
-            swapBars(highlightedIndexes[0], highlightedIndexes[1]);
-          }
-
-          if (currentSortingStep.type == 'Merge') {
-            let leftAndRightVals = currentSortingStep.highlightedIndices;
-            merge(leftAndRightVals[0], leftAndRightVals[1], leftAndRightVals[2]);
-          }
-
-          if (currentSortingStep.type == 'MergeAdd') {
-            if (currentSortingStep.highlightedIndices[0] !== currentSortingStep.highlightedIndices[1]) {
-              moveUpdatesArr.push(
-                new moveUpdate(currentSortingStep.highlightedIndices[0], currentSortingStep.highlightedIndices[1])
-              );
-            }
-
-            mergeAdded(currentSortingStep.highlightedIndices);
-          }
-
-          if (currentSortingStep.type == 'MergeBack') {
-            updateIndexes(moveUpdatesArr);
-            mergeBack(currentSortingStep.highlightedIndices);
-            moveUpdatesArr.splice(0);
-          }
-
-          if (currentSortingStep.type == 'Sorted') {
-            addClass(
-              'sorted',
-              numberArray.value.map((_, index) => index)
-            );
-          }
-
-          if (currentSortingStep.additionalData) {
-            // Insertion additional data
-            if (currentSortingStep.additionalData.insertionIndex) {
-              if (!insertionCurrent) {
-                insertionCurrent = currentSortingStep.additionalData.insertionIndex;
-                addClass('current', [insertionCurrent]);
-              } else {
-                if (currentSortingStep.type == 'Swap') insertionCurrent = currentSortingStep.highlightedIndices[1];
-
-                removeClass('current', [insertionCurrent]);
-                if (currentSortingStep.type !== 'Sorted') {
-                  insertionCurrent = currentSortingStep.additionalData.insertionIndex;
-                  addClass('current', [insertionCurrent]);
-                }
-              }
-            }
-          }
-
-          addClass('sorted', currentSortingStep.sortedIndices);
-
-          stepCounter++;
+        if (intervalCounter < sortingSteps.value.length) {
+          playStep(intervalCounter);
+          intervalCounter++;
         } else {
           clearInternalInterval();
         }
       }, 500);
     });
-
-    function swapBars(index1: number, index2: number) {
-      // Get the bars
-      const bar1 = document.querySelector(`[data-index="g-${index1}"]`) as HTMLElement;
-      const bar2 = document.querySelector(`[data-index="g-${index2}"]`) as HTMLElement;
-
-      if (bar1 && bar2) {
-        const temp = bar1.style.transform;
-        bar1.style.transform = bar2.style.transform;
-        bar2.style.transform = temp;
-
-        bar1.setAttribute('data-index', `g-${index2}`);
-        bar2.setAttribute('data-index', `g-${index1}`);
-
-        bar1.classList.add('swapped');
-        bar1.classList.remove('compare');
-        bar2.classList.add('swapped');
-        bar2.classList.remove('compare');
-      }
-    }
-
-    function updateIndexes(moveUpdates?: moveUpdate[]) {
-      moveUpdates?.forEach((element) => {
-        const bar1 = document.querySelector(`[data-index="g-${element.fromIndex}"]`) as HTMLElement;
-        if (bar1) {
-          element.element = bar1;
-        }
-      });
-
-      moveUpdates?.forEach((element) => {
-        if (element.element) {
-          element.element.setAttribute('data-index', `g-${element.toIndex}`);
-        }
-      });
-    }
-
-    function merge(start: number, middle: number, end: number) {
-      const leftArrayIndices: number[] = [];
-      const rightArrayIndices: number[] = [];
-      for (let i = start; i <= middle; i++) leftArrayIndices.push(i);
-      for (let i = middle + 1; i <= end; i++) rightArrayIndices.push(i);
-      addClass('mergeLeft', leftArrayIndices);
-      addClass('mergeRight', rightArrayIndices);
-    }
-
-    function mergeAdded(highlightedIndices: number[]) {
-      const index = highlightedIndices[0];
-      addClass('mergeAdded', [index]);
-      removeClass('mergeLeft', [index]);
-      removeClass('mergeRight', [index]);
-
-      const mergeIndex = highlightedIndices[1];
-
-      let transform = `translate(${barXPlacement.value + mergeIndex * (barWidth.value + barSpacing.value)}px, 150px)`;
-
-      const bar1 = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
-
-      if (bar1) {
-        bar1.style.transform = transform;
-      }
-    }
-
-    function mergeBack(highlightedIndices: number[]) {
-      const indices = [];
-      for (let i = highlightedIndices[0]; i <= highlightedIndices[1]; i++) {
-        const mergeIndex = i;
-        let transform = `translate(${barXPlacement.value + mergeIndex * (barWidth.value + barSpacing.value)}px, 0px)`;
-        indices.push(i);
-
-        const bar1 = document.querySelector(`[data-index="g-${mergeIndex}"]`) as HTMLElement;
-        if (bar1) {
-          bar1.style.transform = transform;
-        }
-      }
-      addClass('mergeBack', indices);
-    }
-
-    function removeClass(className: string, indices: number[]) {
-      indices.forEach((index) => {
-        const element = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
-        element?.classList.remove(className);
-      });
-    }
-
-    function addClass(className: string, indices?: number[]) {
-      indices?.forEach((index) => {
-        const element = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
-        element?.classList.add(className);
-      });
-    }
 
     return { numberArray, barWidth, barSpacing, maxBarHeight, barXPlacement };
   },
@@ -282,7 +220,7 @@ export default defineComponent({
 
 <style scoped>
 .elem {
-  transition: transform 700ms cubic-bezier(0.2, 1, 0.3, 1);
+  transition: transform 500ms cubic-bezier(0.2, 1, 0.3, 1);
 }
 
 .elem rect {
@@ -321,8 +259,8 @@ export default defineComponent({
 }
 
 .compare rect {
-  fill: #960000;
-  stroke: #960000;
+  fill: #ff0000;
+  stroke: #ff0000;
   stroke-width: 1;
 }
 
@@ -343,3 +281,11 @@ export default defineComponent({
   stroke-width: 3;
 }
 </style>
+
+function removeClass(arg0: string, highlightedIndices: number[]) { throw new Error('Function not implemented.'); }
+function addClass(arg0: string, highlightedIndices: number[]) { throw new Error('Function not implemented.'); } function
+swapBars(arg0: number, arg1: number) { throw new Error('Function not implemented.'); } function merge(arg0: number,
+arg1: number, arg2: number) { throw new Error('Function not implemented.'); } function mergeAdded(highlightedIndices:
+number[]) { throw new Error('Function not implemented.'); } function updateIndexes(moveUpdatesArr: moveUpdate[]) { throw
+new Error('Function not implemented.'); } function mergeBack(highlightedIndices: number[]) { throw new Error('Function
+not implemented.'); }

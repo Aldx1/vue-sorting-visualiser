@@ -1,4 +1,4 @@
-import { ArrayOrderingOption } from "@/storeModels/ArrayConfigModel";
+import { ArrayOrderingOption } from '@/storeModels/ArrayConfigModel';
 
 export default interface INumberArrayGenerator {
   generateArray: (order: ArrayOrderingOption, arraySize: number) => number[];
@@ -35,9 +35,7 @@ export class NumberArrayGenerator implements INumberArrayGenerator {
   #createRandom(): void {
     for (let i = 0; i < this.#arraySize; i++) {
       const randomNumber =
-        Math.floor(
-          Math.random() * (this.#maxArrayValue - this.#minArrayValue + 1)
-        ) + this.#minArrayValue;
+        Math.floor(Math.random() * (this.#maxArrayValue - this.#minArrayValue + 1)) + this.#minArrayValue;
 
       this.#numberArray.push(randomNumber);
     }
@@ -50,10 +48,7 @@ export class NumberArrayGenerator implements INumberArrayGenerator {
     for (let i = 0; i < this.#arraySize; i++) {
       const currentLimit = targetElementValue * (i + 1);
 
-      let numberElement = Math.floor(
-        Math.random() * (currentLimit - this.#minArrayValue) +
-          this.#minArrayValue
-      );
+      let numberElement = Math.floor(Math.random() * (currentLimit - this.#minArrayValue) + this.#minArrayValue);
 
       if (i === 0) {
         this.#numberArray.push(numberElement);
@@ -61,10 +56,7 @@ export class NumberArrayGenerator implements INumberArrayGenerator {
       }
 
       while (numberElement < this.#numberArray[i - 1]) {
-        numberElement = Math.floor(
-          Math.random() * (currentLimit - this.#minArrayValue) +
-            this.#minArrayValue
-        );
+        numberElement = Math.floor(Math.random() * (currentLimit - this.#minArrayValue) + this.#minArrayValue);
       }
 
       this.#numberArray.push(numberElement);
@@ -78,10 +70,7 @@ export class NumberArrayGenerator implements INumberArrayGenerator {
     // Generate a sorted random array using the built in Array.sort function
     const sortedArray = Array.from(
       { length: this.#arraySize },
-      () =>
-        Math.floor(
-          Math.random() * (this.#maxArrayValue - this.#minArrayValue + 1)
-        ) + this.#minArrayValue
+      () => Math.floor(Math.random() * (this.#maxArrayValue - this.#minArrayValue + 1)) + this.#minArrayValue
     ).sort((a, b) => a - b);
 
     // Apply "almost sorting" by shifting elements
@@ -96,10 +85,7 @@ export class NumberArrayGenerator implements INumberArrayGenerator {
       const shiftedIndex = Math.min(i + randomShiftIndex, this.#arraySize - 1);
 
       // Swap current element with the shifted element
-      [almostSortedArray[i], almostSortedArray[shiftedIndex]] = [
-        almostSortedArray[shiftedIndex],
-        almostSortedArray[i],
-      ];
+      [almostSortedArray[i], almostSortedArray[shiftedIndex]] = [almostSortedArray[shiftedIndex], almostSortedArray[i]];
     }
 
     this.#numberArray = almostSortedArray;
@@ -113,9 +99,7 @@ export class NumberArrayGenerator implements INumberArrayGenerator {
       const remainingValueForElement = targetElementValue * (i + 1);
       const currentLimit = this.#maxArrayValue - remainingValueForElement;
 
-      let numberElement = Math.floor(
-        Math.random() * (this.#maxArrayValue - currentLimit) + currentLimit
-      );
+      let numberElement = Math.floor(Math.random() * (this.#maxArrayValue - currentLimit) + currentLimit);
 
       if (i === 0) {
         this.#numberArray.push(numberElement);
@@ -123,9 +107,7 @@ export class NumberArrayGenerator implements INumberArrayGenerator {
       }
 
       while (numberElement > this.#numberArray[i - 1]) {
-        numberElement = Math.floor(
-          Math.random() * (this.#maxArrayValue - currentLimit) + currentLimit
-        );
+        numberElement = Math.floor(Math.random() * (this.#maxArrayValue - currentLimit) + currentLimit);
       }
 
       if (numberElement < this.#minArrayValue) {

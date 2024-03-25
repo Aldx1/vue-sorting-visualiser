@@ -1,4 +1,4 @@
-import SortingStep from "./SortingStep";
+import SortingStep from './SortingStep';
 
 export default interface ISortingAlgorithm {
   sort: (numberArray: number[]) => void;

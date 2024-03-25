@@ -36,32 +36,32 @@ export default class SelectionSort implements ISortingAlgorithm {
   selectionSort(numberArray: number[]): number[] {
     const sortedIndices: number[] = [];
 
-    for (let i = 0; i < numberArray.length - 1; i++) {
-      let minIndex = i;
+    let Iindex = 0;
 
-      for (let j = i + 1; j < numberArray.length; j++) {
-        this.steps.push(SortingOperation.compare(minIndex, j, [...sortedIndices]));
+    for (Iindex; Iindex < numberArray.length - 1; Iindex++) {
+      let minIndex = Iindex;
+
+      const additionalData = { selectionIndex: Iindex, selection: true };
+
+      for (let j = Iindex + 1; j < numberArray.length; j++) {
+        this.steps.push(SortingOperation.compare(minIndex, j, [...sortedIndices], additionalData));
         if (numberArray[j] < numberArray[minIndex]) {
           minIndex = j;
         }
       }
 
-      if (minIndex !== i) {
-        this.steps.push(SortingOperation.swap(minIndex, i, [...sortedIndices]));
+      if (minIndex !== Iindex) {
+        this.steps.push(SortingOperation.swap(minIndex, Iindex, [...sortedIndices], additionalData));
 
-        const temp = numberArray[i];
-        numberArray[i] = numberArray[minIndex];
+        const temp = numberArray[Iindex];
+        numberArray[Iindex] = numberArray[minIndex];
         numberArray[minIndex] = temp;
       }
 
-      sortedIndices.push(i);
-
-      if (i == numberArray.length - 2) {
-        sortedIndices.push(i + 1);
-      }
+      sortedIndices.push(Iindex);
     }
 
-    this.steps.push(SortingOperation.sorted());
+    this.steps.push(SortingOperation.sorted({ selectionIndex: Iindex, selection: true }));
     return numberArray;
   }
 }
