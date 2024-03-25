@@ -1,5 +1,5 @@
-import SortingStep, { SortingOperation } from "./SortingStep";
-import ISortingAlgorithm from "./ISortingAlgorithm";
+import SortingStep, { SortingOperation } from './SortingStep';
+import ISortingAlgorithm from './ISortingAlgorithm';
 
 export default class SelectionSort implements ISortingAlgorithm {
   pseudoCode = `
@@ -31,7 +31,6 @@ export default class SelectionSort implements ISortingAlgorithm {
   sort(numberArray: number[]) {
     this.steps = [];
     const sortedNumberArray = this.selectionSort(numberArray);
-    console.log("Hi Selection", sortedNumberArray);
   }
 
   selectionSort(numberArray: number[]): number[] {
@@ -41,9 +40,7 @@ export default class SelectionSort implements ISortingAlgorithm {
       let minIndex = i;
 
       for (let j = i + 1; j < numberArray.length; j++) {
-        this.steps.push(
-          SortingOperation.compare(minIndex, j, [...sortedIndices])
-        );
+        this.steps.push(SortingOperation.compare(minIndex, j, [...sortedIndices]));
         if (numberArray[j] < numberArray[minIndex]) {
           minIndex = j;
         }
@@ -64,7 +61,7 @@ export default class SelectionSort implements ISortingAlgorithm {
       }
     }
 
-    this.steps.push(SortingOperation.sorted([...sortedIndices]));
+    this.steps.push(SortingOperation.sorted());
     return numberArray;
   }
 }

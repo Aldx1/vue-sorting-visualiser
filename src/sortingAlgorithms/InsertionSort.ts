@@ -1,5 +1,5 @@
-import SortingStep, { SortingOperation } from "./SortingStep";
-import ISortingAlgorithm from "./ISortingAlgorithm";
+import SortingStep, { SortingOperation } from './SortingStep';
+import ISortingAlgorithm from './ISortingAlgorithm';
 
 export default class InsertionSort implements ISortingAlgorithm {
   pseudoCode = `
@@ -28,19 +28,17 @@ export default class InsertionSort implements ISortingAlgorithm {
   sort(numberArray: number[]) {
     this.steps = [];
     const sortedNumberArray = this.insertionSort(numberArray);
-    console.log("Hi insertion", sortedNumberArray);
   }
 
   insertionSort(numberArray: number[]): number[] {
-    for (let i = 0; i < numberArray.length; i++) {
-      let j = i;
+    let insertionIndex = 0;
+    for (insertionIndex; insertionIndex < numberArray.length; insertionIndex++) {
+      let j = insertionIndex;
 
-      const additionalData = { insertionIndex: i };
+      const additionalData = { insertionIndex: insertionIndex };
 
       while (j > 0 && this.compare(numberArray, j, j - 1, additionalData)) {
-        this.steps.push(
-          SortingOperation.swap(j, j - 1, undefined, additionalData)
-        );
+        this.steps.push(SortingOperation.swap(j, j - 1, undefined, additionalData));
         let temp = numberArray[j];
         numberArray[j] = numberArray[j - 1];
         numberArray[j - 1] = temp;
@@ -48,33 +46,12 @@ export default class InsertionSort implements ISortingAlgorithm {
       }
     }
 
-    /* for (let i = 1; i < numberArray.length; i++) {
-      const current = numberArray[i];
-      let j = i - 1;
-
-      while (j >= 0 && numberArray[j] > current) {
-        numberArray[j + 1] = numberArray[j];
-        j--;
-      }
-
-      numberArray[j + 1] = current;
-    }
- */
-    const sortedIndices: number[] = [];
-    numberArray.forEach((_, index) => {
-      sortedIndices.push(index);
-    });
-    this.steps.push(SortingOperation.sorted(sortedIndices));
+    this.steps.push(SortingOperation.sorted({ insertionIndex: insertionIndex }));
     return numberArray;
   }
 
-  compare(
-    numberArray: number[],
-    j: number,
-    current: number,
-    additionalData: any
-  ): boolean {
-    this.steps.push(SortingOperation.compare(j, current));
+  compare(numberArray: number[], j: number, current: number, additionalData: any): boolean {
+    this.steps.push(SortingOperation.compare(j, current, undefined, additionalData));
     return numberArray[j] < numberArray[current];
   }
 }

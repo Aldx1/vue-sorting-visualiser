@@ -1,5 +1,5 @@
-import SortingStep, { SortingOperation } from "./SortingStep";
-import ISortingAlgorithm from "./ISortingAlgorithm";
+import SortingStep, { SortingOperation } from './SortingStep';
+import ISortingAlgorithm from './ISortingAlgorithm';
 
 export default class BubbleSort implements ISortingAlgorithm {
   pseudoCode = `
@@ -27,7 +27,6 @@ export default class BubbleSort implements ISortingAlgorithm {
   sort(numberArray: number[]) {
     this.steps = [];
     const sortedNumberArray = this.bubbleSort(numberArray);
-    console.log("Hi bubble", sortedNumberArray);
   }
 
   bubbleSort(numberArray: number[]): number[] {
@@ -49,16 +48,12 @@ export default class BubbleSort implements ISortingAlgorithm {
       sortedIndices.push(i);
 
       if (swaps == 0) {
-        sortedIndices = [];
-        numberArray.forEach((_, index) => {
-          sortedIndices.push(index);
-        });
-        this.steps.push(SortingOperation.sorted(sortedIndices));
+        this.steps.push(SortingOperation.sorted());
         return numberArray;
       }
     }
 
-    this.steps.push(SortingOperation.sorted(sortedIndices));
+    this.steps.push(SortingOperation.sorted());
     return numberArray;
   }
 }

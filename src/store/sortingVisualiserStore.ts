@@ -1,17 +1,14 @@
-import { defineStore } from "pinia";
-import {
-  ArrayOrderingOption,
-  IArrayConfigModel,
-} from "@/storeModels/ArrayConfigModel";
-import { ISortingModel } from "@/storeModels/SortingModel";
-import { NumberArrayGenerator } from "@/factories/NumberArrayFactory";
-import { SortingAlgorithmFactory } from "@/factories/SortingAlgorithmFactory";
-import SortingStep from "@/sortingAlgorithms/SortingStep";
+import { defineStore } from 'pinia';
+import { ArrayOrderingOption, IArrayConfigModel } from '@/storeModels/ArrayConfigModel';
+import { ISortingModel } from '@/storeModels/SortingModel';
+import { NumberArrayGenerator } from '@/factories/NumberArrayFactory';
+import { SortingAlgorithmFactory } from '@/factories/SortingAlgorithmFactory';
+import SortingStep from '@/sortingAlgorithms/SortingStep';
 
 const minimumElementCount = 5;
 const maximumElementCount = 25;
 
-export const useNumberArrayCreationStore = defineStore("numberArrayCreation", {
+export const useNumberArrayCreationStore = defineStore('numberArrayCreation', {
   state: () =>
     ({
       ordering: ArrayOrderingOption.RANDOM,
@@ -27,11 +24,7 @@ export const useNumberArrayCreationStore = defineStore("numberArrayCreation", {
     },
     async generateArray() {
       const arrayGenerator = new NumberArrayGenerator();
-      const generatedArray = arrayGenerator.generateArray(
-        this.ordering,
-        this.elementSize
-      );
-      console.log(generatedArray);
+      const generatedArray = arrayGenerator.generateArray(this.ordering, this.elementSize);
       const sortingStore = useSortingStore();
       sortingStore.setNumberArray(generatedArray);
       sortingStore.sort();
@@ -47,15 +40,15 @@ export const useNumberArrayCreationStore = defineStore("numberArrayCreation", {
   },
 });
 
-export const useSortingStore = defineStore("sorting", {
+export const useSortingStore = defineStore('sorting', {
   state: () =>
     ({
       numberArray: [],
       sortingAlgorithmFactory: new SortingAlgorithmFactory(),
-      pseudoCode: "",
+      pseudoCode: '',
       steps: [],
       algorithmChosen: false,
-      sortingAlgorithm: "",
+      sortingAlgorithm: '',
     } as ISortingModel),
 
   actions: {
@@ -64,9 +57,7 @@ export const useSortingStore = defineStore("sorting", {
     },
     sort() {
       this.sortingAlgorithmFactory.sort(this.numberArray);
-      this.selectAlgorithm(
-        this.sortingAlgorithm == "" ? this.keys[0] : this.sortingAlgorithm
-      );
+      this.selectAlgorithm(this.sortingAlgorithm == '' ? this.keys[0] : this.sortingAlgorithm);
     },
     selectAlgorithm(choice: string) {
       const chosenOne = this.sortingAlgorithmFactory.select(choice);

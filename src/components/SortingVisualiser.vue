@@ -75,7 +75,7 @@ export default defineComponent({
       }
     );
 
-    const resetNumberArray = (sortedIndices?: number[], minIndex?: number) => {
+    const resetNumberArray = () => {
       numberArray.value.forEach((_, index) => {
         let element = document.getElementById('g-' + index);
         if (element) {
@@ -84,8 +84,6 @@ export default defineComponent({
         }
       });
     };
-
-    const performStep = () => {};
 
     class moveUpdate {
       fromIndex: number;
@@ -99,10 +97,9 @@ export default defineComponent({
 
     let stepCounter = 0;
     const moveUpdatesArr: moveUpdate[] = [];
+    let insertionCurrent: number;
 
     watch([numberArray, sortingSteps], () => {
-      console.log(sortingSteps.value);
-      //debugger;
       stepCounter = 0;
       clearInternalInterval();
       resetNumberArray();
@@ -113,11 +110,11 @@ export default defineComponent({
               removeClass('compare', currentSortingStep.highlightedIndices);
             } else if (currentSortingStep.type == 'Swap') {
               removeClass('swapped', currentSortingStep.highlightedIndices);
-            } else if (currentSortingStep.type == 'MoveBack') {
+            } else if (currentSortingStep.type == 'MergeBack') {
               const indices: number[] = [];
               let highlighted = currentSortingStep.highlightedIndices;
               for (let i = highlighted[0]; i <= highlighted[1]; i++) indices.push(i);
-              removeClass('mergeMoveBack', indices);
+              removeClass('mergeBack', indices);
               removeClass('mergeAdded', indices);
             }
           }
@@ -138,7 +135,7 @@ export default defineComponent({
             merge(leftAndRightVals[0], leftAndRightVals[1], leftAndRightVals[2]);
           }
 
-          if (currentSortingStep.type == 'M-Add') {
+          if (currentSortingStep.type == 'MergeAdd') {
             if (currentSortingStep.highlightedIndices[0] !== currentSortingStep.highlightedIndices[1]) {
               moveUpdatesArr.push(
                 new moveUpdate(currentSortingStep.highlightedIndices[0], currentSortingStep.highlightedIndices[1])
@@ -148,34 +145,34 @@ export default defineComponent({
             mergeAdded(currentSortingStep.highlightedIndices);
           }
 
-          if (currentSortingStep.type == 'MoveBack') {
+          if (currentSortingStep.type == 'MergeBack') {
             updateIndexes(moveUpdatesArr);
-            mergeMoveBack(currentSortingStep.highlightedIndices);
+            mergeBack(currentSortingStep.highlightedIndices);
             moveUpdatesArr.splice(0);
           }
 
           if (currentSortingStep.type == 'Sorted') {
-            const indices: number[] = [];
-
-            numberArray.value.forEach((_, index) => {
-              indices.push(index);
-            });
-
-            removeClass('current', indices);
-            addClass('sorted', indices);
+            addClass(
+              'sorted',
+              numberArray.value.map((_, index) => index)
+            );
           }
 
           if (currentSortingStep.additionalData) {
+            // Insertion additional data
             if (currentSortingStep.additionalData.insertionIndex) {
-              addClass('current', [currentSortingStep.additionalData.insertionIndex]);
+              if (!insertionCurrent) {
+                insertionCurrent = currentSortingStep.additionalData.insertionIndex;
+                addClass('current', [insertionCurrent]);
+              } else {
+                if (currentSortingStep.type == 'Swap') insertionCurrent = currentSortingStep.highlightedIndices[1];
 
-              const indicesToRemove: number[] = [];
-              numberArray.value.forEach((_, index) => {
-                if (currentSortingStep.additionalData.insertionIndex !== index) {
-                  indicesToRemove.push(index);
+                removeClass('current', [insertionCurrent]);
+                if (currentSortingStep.type !== 'Sorted') {
+                  insertionCurrent = currentSortingStep.additionalData.insertionIndex;
+                  addClass('current', [insertionCurrent]);
                 }
-              });
-              removeClass('current', indicesToRemove);
+              }
             }
           }
 
@@ -243,13 +240,13 @@ export default defineComponent({
       let transform = `translate(${barXPlacement.value + mergeIndex * (barWidth.value + barSpacing.value)}px, 150px)`;
 
       const bar1 = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
-      //const bar2 = document.querySelector(`[data-index="g-${mergeIndex}"]`) as HTMLElement;
+
       if (bar1) {
         bar1.style.transform = transform;
       }
     }
 
-    function mergeMoveBack(highlightedIndices: number[]) {
+    function mergeBack(highlightedIndices: number[]) {
       const indices = [];
       for (let i = highlightedIndices[0]; i <= highlightedIndices[1]; i++) {
         const mergeIndex = i;
@@ -261,17 +258,8 @@ export default defineComponent({
           bar1.style.transform = transform;
         }
       }
-      addClass('mergeMoveBack', indices);
+      addClass('mergeBack', indices);
     }
-
-    /* function mergeMoveBack(index: number) {
-      const leftArrayIndices: number[] = [];
-      const rightArrayIndices: number[] = [];
-      for (let i = start; i <= middle; i++) leftArrayIndices.push(i);
-      for (let i = middle + 1; i <= end; i++) rightArrayIndices.push(i);
-      removeClass('mergeLeft', leftArrayIndices);
-      removeClass('mergeRight', rightArrayIndices);
-    } */
 
     function removeClass(className: string, indices: number[]) {
       indices.forEach((index) => {
@@ -344,7 +332,7 @@ export default defineComponent({
   stroke-width: 1;
 }
 
-.mergeMoveBack rect {
+.mergeBack rect {
   fill: #00ffea !important;
   stroke: #00ffea !important;
   stroke-width: 1;
