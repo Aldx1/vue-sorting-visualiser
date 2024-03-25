@@ -64,17 +64,13 @@ export default defineComponent({
             (sortingStore.numberArray.length - 1) * barSpacing.value)) /
         2
     );
-    const maxBarHeight = 200;
-
-    let interval: number;
-    let currentSortingStep: SortingStep;
-
-    const clearInternalInterval = () => {
-      clearInterval(interval);
-    };
-
     const numberArray = storeToRefs(sortingStore).numberArray;
     const sortingSteps = storeToRefs(sortingStore).sortingSteps;
+    const startAnimation = storeToRefs(sortingStore).startDisplay;
+
+    const maxBarHeight = 200;
+    let interval: number;
+    let currentSortingStep: SortingStep;
 
     watch(
       () => sortingStore.sortingAlgorithm,
@@ -83,6 +79,25 @@ export default defineComponent({
         resetNumberArray();
       }
     );
+
+    watch([numberArray, sortingSteps, startAnimation], () => {
+      console.log(sortingSteps.value);
+      intervalCounter = 0;
+      clearInternalInterval();
+      resetNumberArray();
+      interval = setInterval(() => {
+        if (intervalCounter < sortingSteps.value.length) {
+          playStep(intervalCounter);
+          intervalCounter++;
+        } else {
+          clearInternalInterval();
+        }
+      }, 500);
+    });
+
+    const clearInternalInterval = () => {
+      clearInterval(interval);
+    };
 
     const resetNumberArray = () => {
       numberArray.value.forEach((_, index) => {
@@ -95,7 +110,6 @@ export default defineComponent({
     };
 
     const moveUpdatesArr: moveUpdate[] = [];
-
     let intervalCounter = 0;
     let insertionIndex: number = -1;
     let selectionIndex: number = -1;
@@ -197,21 +211,6 @@ export default defineComponent({
         }
       }
     }
-
-    watch([numberArray, sortingSteps], () => {
-      console.log(sortingSteps.value);
-      intervalCounter = 0;
-      clearInternalInterval();
-      resetNumberArray();
-      interval = setInterval(() => {
-        if (intervalCounter < sortingSteps.value.length) {
-          playStep(intervalCounter);
-          intervalCounter++;
-        } else {
-          clearInternalInterval();
-        }
-      }, 500);
-    });
 
     return { numberArray, barWidth, barSpacing, maxBarHeight, barXPlacement };
   },

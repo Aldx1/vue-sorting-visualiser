@@ -43,8 +43,8 @@ export default defineComponent({
     });
 
     const selectAlgorithm = () => {
-      console.log('HI');
       sortingStore.selectAlgorithm(chosenOne.value);
+      sortingStore.startDisplay = true;
     };
 
     const updateChosenOne = (value: string) => {

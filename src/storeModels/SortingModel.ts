@@ -7,4 +7,5 @@ export interface ISortingModel {
   pseudoCode: string;
   steps: SortingStep[];
   sortingAlgorithm: string;
+  startDisplay: boolean;
 }

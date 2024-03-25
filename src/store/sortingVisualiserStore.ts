@@ -49,6 +49,7 @@ export const useSortingStore = defineStore('sorting', {
       steps: [],
       algorithmChosen: false,
       sortingAlgorithm: '',
+      startDisplay: false,
     } as ISortingModel),
 
   actions: {
