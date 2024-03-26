@@ -48,7 +48,7 @@ export default defineComponent({
 
     const setSize = (newValue: string) => {
       arraySize.value = Number(newValue);
-      arrayCreationStore.setArraySize(arraySize.value); ///???
+      arrayCreationStore.setArraySize(arraySize.value);
     };
 
     const setOrder = () => {
@@ -79,4 +79,3 @@ export default defineComponent({
 </script>
 
 <style></style>
-@/store/arrayCreationStore @/storeModels/ArrayCreationModel @/store/ArrayCreationStore@/storeModels/ArrayCreation

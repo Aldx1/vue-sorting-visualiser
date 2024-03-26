@@ -24,7 +24,7 @@
           transform: `translate(${barXPlacement + index * (barWidth + barSpacing)}px, 0)`,
         }"
       >
-        <rect :y="maxBarHeight - value" :width="barWidth" :height="value" rx="0.3rem" />
+        <rect :y="maxBarHeight - (value + 15)" :width="barWidth" :height="value + 15" rx="0.3rem" />
         <text :x="barWidth / 2" :y="maxBarHeight + 20">
           {{ value }}
         </text>
@@ -47,45 +47,60 @@ export default defineComponent({
     const sortingStore = useSortingStore();
     const animationStore = useAnimationControlsStore();
 
-    const { numberArray, algorithmSet, sortingAlgorithm } = storeToRefs(sortingStore);
-    const { animationSpeed, barXPlacement, barWidth, barSpacing, maxBarHeight, paused } = storeToRefs(animationStore);
+    const { numberArray, sortingAlgorithm } = storeToRefs(sortingStore);
+    const { animationSpeed, barXPlacement, barWidth, barSpacing, maxBarHeight, play, animationStep } =
+      storeToRefs(animationStore);
 
     let interval: number;
 
     watch(sortingAlgorithm, () => {
-      numberArray.value = [...sortingStore.numberArray];
-      resetNumberArray();
+      reset();
+    });
+
+    watch(animationStep, () => {
+      if (animationStep.value == 0) {
+        reset();
+      }
     });
 
     watch(animationSpeed, () => {
-      if (!paused.value) {
-        clearInterval(interval);
+      if (play.value) {
+        clearInternalInterval();
         setInternalInterval();
       }
     });
 
-    watch([numberArray, algorithmSet], () => {
-      clearInterval(interval);
+    watch([numberArray], () => {
+      clearInternalInterval();
       resetNumberArray();
       setInternalInterval();
-      paused.value = false;
-      animationStore.paused = false;
+      play.value = true;
+      animationStore.play = true;
     });
 
-    watch(paused, () => {
-      if (paused.value) {
-        clearInterval(interval);
-      } else {
+    watch(play, () => {
+      if (play.value) {
         setInternalInterval();
+      } else {
+        clearInternalInterval();
       }
     });
+
+    const reset = () => {
+      numberArray.value = [...sortingStore.numberArray];
+      resetNumberArray();
+    };
+
+    const clearInternalInterval = () => {
+      clearInterval(interval);
+    };
 
     const setInternalInterval = () => {
       interval = setInterval(() => {
-        if (!paused.value) {
-          animationStore.playStep();
+        if (play.value && animationStore.canStepForward) {
+          animationStore.playForwardStep();
         } else {
-          clearInterval(interval);
+          clearInternalInterval();
         }
       }, animationSpeed.value);
     };

@@ -1,20 +1,11 @@
 <template>
   <bcard tag="article" style="max-width: 14rem; color: white" class="m-2 bg-secondary shadow-lg align-items-sm-center">
-    <btn-toolbar class="m-2">
-      <btn-group class="mx-1">
-        <btn class="bg-primary">&lsaquo;</btn>
-      </btn-group>
-      <btn-group :disabled="playDisabled" class="mx-1">
-        <btn class="bg-primary" style="min-width: 40px" @click="playPauseToggle">{{ playText }}</btn>
-      </btn-group>
-      <btn-group class="mx-1">
-        <btn class="bg-primary">&rsaquo;</btn>
-      </btn-group>
-    </btn-toolbar>
+    <btn v-if="!disablePlay" class="bg-primary m-2" @click="playPause">{{ playText }}</btn>
+    <btn v-if="disablePlay" class="bg-primary m-2" @click="restart">Restart</btn>
     <b-form-input
       id="array-size-range"
       type="range"
-      style="align-items: center; max-width: 15rem"
+      style="align-items: center; max-width: 10rem"
       :min="0"
       :max="minSpeed - 100"
       v-model="animationSpeed"
@@ -40,17 +31,24 @@ export default defineComponent({
   },
   setup() {
     const animationStore = useAnimationControlsStore();
-
+    const { play } = storeToRefs(animationStore);
     const minSpeed = animationStore.getMinSpeed;
-    const playPause = storeToRefs(animationStore).paused;
+    let animationSpeed = (minSpeed - 100) / 2;
+
     const playText = computed(() => {
-      if (!playPause.value) return 'Pause';
+      if (play.value) return 'Pause';
       else return 'Play';
     });
 
-    const playDisabled = storeToRefs(animationStore).disabled;
+    const disablePlay = computed(() => {
+      if (animationStore.canStepForward) return false;
+      return true;
+    });
 
-    let animationSpeed = (minSpeed - 100) / 2;
+    const disableBackStep = computed(() => {
+      if (animationStore.canStepBack) return false;
+      return true;
+    });
 
     const setAnimSpeed = (newSpeed: string) => {
       const newSpeedNumber = minSpeed - Number(newSpeed);
@@ -58,33 +56,28 @@ export default defineComponent({
       animationStore.setAnimationSpeed(animationSpeed);
     };
 
-    const stepBack = () => {
-      animationStore.paused = true;
-      animationStore.playStep(false);
+    const playPause = () => {
+      if (play.value) animationStore.pause();
+      else animationStore.resume();
     };
 
-    const stepForward = () => {
-      animationStore.paused = true;
-      animationStore.playStep(true);
-    };
-
-    const playPauseToggle = () => {
-      animationStore.paused = !playPause.value;
+    const restart = () => {
+      animationStore.resetStep();
+      animationStore.resume();
     };
 
     return {
       minSpeed,
       animationSpeed,
       playText,
-      playDisabled,
-      playPauseToggle,
+      disablePlay,
+      disableBackStep,
       setAnimSpeed,
-      stepBack,
-      stepForward,
+      playPause,
+      restart,
     };
   },
 });
 </script>
 
 <style></style>
-@/store/AnimationStore

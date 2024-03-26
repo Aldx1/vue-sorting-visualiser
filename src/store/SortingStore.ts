@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { ISortingModel } from '@/storeModels/Sorting';
 import { SortingAlgorithmFactory } from '@/factories/SortingAlgorithmFactory';
-import SortingStep from '@/sortingAlgorithms/SortingStep';
 import { useAnimationControlsStore } from './AnimationStore';
 
 export const useSortingStore = defineStore('sorting', {
@@ -24,13 +23,14 @@ export const useSortingStore = defineStore('sorting', {
       this.selectAlgorithm(this.sortingAlgorithm == '' ? this.keys[0] : this.sortingAlgorithm);
     },
     selectAlgorithm(choice: string) {
+      const animStore = useAnimationControlsStore();
       const chosenOne = this.sortingAlgorithmFactory.select(choice);
       this.sortingAlgorithm = choice;
-      this.algorithmSet = true;
-
-      const useAnimStore = useAnimationControlsStore();
-      useAnimStore.setHelperBitsAndSteps(this.numberArray, chosenOne.steps);
-      useAnimStore.paused = true;
+      animStore.setHelperBitsAndSteps(this.numberArray, chosenOne.steps);
+    },
+    startAnim() {
+      const animStore = useAnimationControlsStore();
+      animStore.resume();
     },
   },
   getters: {

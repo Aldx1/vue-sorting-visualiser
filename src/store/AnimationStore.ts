@@ -10,8 +10,7 @@ export const useAnimationControlsStore = defineStore('animationControls', {
     ({
       animationSpeed: 2000,
       animationStep: 0,
-      paused: true,
-      finished: false,
+      play: false,
       helper: null,
       barXPlacement: 0,
       barSpacing: 0,
@@ -25,25 +24,35 @@ export const useAnimationControlsStore = defineStore('animationControls', {
     resetStep() {
       this.animationStep = 0;
     },
+    pause() {
+      this.play = false;
+    },
+    resume() {
+      if (this.canStepForward) this.play = true;
+    },
     incrementStep() {
-      if (this.helper && this.animationStep < this.helper.sortingSteps.length) this.animationStep++;
+      if (this.helper && this.animationStep <= this.helper.sortingSteps.length - 1) this.animationStep++;
     },
     decrementStep() {
-      if (this.animationStep > 0) this.animationStep--;
+      if (this.animationStep >= 0) this.animationStep--;
     },
-    playStep(increment: boolean = true) {
-      if (this.helper !== null && this.animationStep < this.helper.sortingSteps.length && this.animationStep >= 0) {
-        this.helper.playStep(this.animationStep);
-        this.disabled = false;
+    playForwardStep() {
+      if (this.animationStep < 0) this.animationStep = 0;
 
-        if (increment) this.incrementStep();
-        else this.decrementStep();
+      if (this.canStepForward) {
+        this.helper?.playStep(this.animationStep);
+
+        this.incrementStep();
       }
-
-      if (this.helper && this.animationStep >= this.helper.sortingSteps.length) {
+    },
+    playBackwardStep() {
+      if (this.helper && this.animationStep > this.helper.sortingSteps.length - 1)
         this.animationStep = this.helper.sortingSteps.length - 1;
-        this.disabled = true;
-        this.paused = true;
+
+      if (this.canStepBack) {
+        this.helper?.playStep(this.animationStep);
+
+        this.decrementStep();
       }
     },
     setHelperBitsAndSteps(numberArray: number[], steps: SortingStep[]) {
@@ -60,6 +69,12 @@ export const useAnimationControlsStore = defineStore('animationControls', {
   getters: {
     getMinSpeed() {
       return minSpeed;
+    },
+    canStepForward(): boolean {
+      return this.helper != null && this.animationStep <= this.helper.sortingSteps.length - 1;
+    },
+    canStepBack(): boolean {
+      return this.animationStep >= 0;
     },
   },
 });

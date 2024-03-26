@@ -44,6 +44,7 @@ export default defineComponent({
 
     const selectAlgorithm = () => {
       sortingStore.selectAlgorithm(chosenOne.value);
+      sortingStore.startAnim();
     };
 
     const updateChosenOne = (value: string) => {
@@ -62,4 +63,3 @@ export default defineComponent({
 </script>
 
 <style></style>
-@/store/arrayCreationStore @/store/SortingStore
