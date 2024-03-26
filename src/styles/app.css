@@ -1,14 +1,70 @@
 
-.sidebarElementGroup{
-    width: 250px;
-    height: auto;
+:root {
+font-family: Avenir, Helvetica, Arial, sans-serif;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+text-align: center;
+color: #2c3e50;
 }
 
-.sidebarElement{
-    width: 80%;
-    align-items: center;
+.elem {
+transition: transform 700ms cubic-bezier(0.2, 1, 0.3, 1);
 }
 
-.sidebar{
-    align-items: center;
-} 
+.elem rect {
+fill: #3f3b6c;
+stroke: #3f3b6c;
+stroke-width: 1;
+}
+
+.elem text {
+font-size: 0.8rem;
+text-anchor: middle;
+}
+
+.swapped rect {
+fill: #57eb13;
+stroke: #57eb13;
+stroke-width: 1;
+}
+
+.sorted rect {
+fill: #ffa65c;
+stroke: #ffa65c;
+stroke-width: 1;
+}
+
+.mergeLeft rect {
+fill: #ea00ff;
+stroke: #ea00ff;
+stroke-width: 1;
+}
+
+.mergeRight rect {
+fill: #041dff;
+stroke: #041dff;
+stroke-width: 1;
+}
+
+.compare rect {
+fill: #ff0000;
+stroke: #ff0000;
+stroke-width: 1;
+}
+
+.mergeAdded rect {
+fill: #57eb13;
+stroke: #57eb13;
+stroke-width: 1;
+}
+
+.mergeBack rect {
+fill: #00ffea !important;
+stroke: #00ffea !important;
+stroke-width: 1;
+}
+
+.current rect {
+stroke: rgb(255, 0, 212);
+stroke-width: 3;
+}

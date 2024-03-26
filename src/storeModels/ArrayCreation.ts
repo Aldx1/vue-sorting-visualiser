@@ -5,7 +5,7 @@ export enum ArrayOrderingOption {
   DESCENDING = 'Descending',
 }
 
-export interface IArrayConfigModel {
+export interface IArrayCreationModel {
   elementSize: number;
   ordering: ArrayOrderingOption;
 }

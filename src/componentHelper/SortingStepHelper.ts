@@ -1,3 +1,5 @@
+import SortingStep from '@/sortingAlgorithms/SortingStep';
+
 export class moveUpdate {
   fromIndex: number;
   toIndex: number;
@@ -8,7 +10,7 @@ export class moveUpdate {
   }
 }
 
-export function performSwap(index1: number, index2: number) {
+function performSwap(index1: number, index2: number) {
   // Get the bars
   const bar1 = document.querySelector(`[data-index="g-${index1}"]`) as HTMLElement;
   const bar2 = document.querySelector(`[data-index="g-${index2}"]`) as HTMLElement;
@@ -28,7 +30,7 @@ export function performSwap(index1: number, index2: number) {
   }
 }
 
-export function updateIndexes(moveUpdates?: moveUpdate[]) {
+function updateIndexes(moveUpdates?: moveUpdate[]) {
   moveUpdates?.forEach((element) => {
     const bar1 = document.querySelector(`[data-index="g-${element.fromIndex}"]`) as HTMLElement;
     if (bar1) {
@@ -42,8 +44,7 @@ export function updateIndexes(moveUpdates?: moveUpdate[]) {
     }
   });
 }
-
-export function merge(start: number, middle: number, end: number) {
+function merge(start: number, middle: number, end: number) {
   const leftArrayIndices: number[] = [];
   const rightArrayIndices: number[] = [];
   for (let i = start; i <= middle; i++) leftArrayIndices.push(i);
@@ -52,7 +53,7 @@ export function merge(start: number, middle: number, end: number) {
   addClass('mergeRight', rightArrayIndices);
 }
 
-export function mergeAdded(highlightedIndices: number[], barXPlacement: number, barWidth: number, barSpacing: number) {
+function mergeAdded(highlightedIndices: number[], barXPlacement: number, barWidth: number, barSpacing: number) {
   const index = highlightedIndices[0];
   addClass('mergeAdded', [index]);
   removeClass('mergeLeft', [index]);
@@ -69,7 +70,7 @@ export function mergeAdded(highlightedIndices: number[], barXPlacement: number, 
   }
 }
 
-export function mergeBack(highlightedIndices: number[], barXPlacement: number, barWidth: number, barSpacing: number) {
+function mergeBack(highlightedIndices: number[], barXPlacement: number, barWidth: number, barSpacing: number) {
   const indices = [];
   for (let i = highlightedIndices[0]; i <= highlightedIndices[1]; i++) {
     const mergeIndex = i;
@@ -84,16 +85,135 @@ export function mergeBack(highlightedIndices: number[], barXPlacement: number, b
   addClass('mergeBack', indices);
 }
 
-export function removeClass(className: string, indices: number[]) {
+function removeClass(className: string, indices: number[]) {
   indices.forEach((index) => {
     const element = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
     element?.classList.remove(className);
   });
 }
 
-export function addClass(className: string, indices?: number[]) {
+function addClass(className: string, indices?: number[]) {
   indices?.forEach((index) => {
     const element = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
     element?.classList.add(className);
   });
+}
+
+export class SortingHelper {
+  barXPlacement: number;
+  barWidth: number;
+  barSpacing: number;
+  numberArray: number[];
+
+  sortingSteps: SortingStep[] = [];
+  currentSortingStep?: SortingStep;
+
+  constructor(barXp: number, barWidth: number, barSpacing: number, numberArray: number[]) {
+    this.barXPlacement = barXp;
+    this.barWidth = barWidth;
+    this.barSpacing = barSpacing;
+    this.numberArray = numberArray;
+  }
+
+  moveUpdatesArr: moveUpdate[] = [];
+  insertionIndex: number = -1;
+  selectionIndex: number = -1;
+
+  playStep(stepCounter: number) {
+    // Tidy up previous step
+    if (this.currentSortingStep) {
+      const { type: sortingStepType, highlightedIndices } = this.currentSortingStep;
+      switch (sortingStepType) {
+        case 'Compare':
+          removeClass('compare', highlightedIndices);
+          break;
+        case 'Swap':
+          removeClass('swapped', highlightedIndices);
+          break;
+        case 'MergeBack':
+          const indices: number[] = [];
+          for (let i = highlightedIndices[0]; i <= highlightedIndices[1]; i++) indices.push(i);
+          removeClass('mergeBack', indices);
+          removeClass('mergeAdded', indices);
+          break;
+      }
+    }
+
+    // Perform current step
+    this.currentSortingStep = this.sortingSteps[stepCounter];
+    const { type: sortingStepType, highlightedIndices, sortedIndices, additionalData } = this.currentSortingStep;
+
+    switch (sortingStepType) {
+      case 'Compare':
+        addClass('compare', highlightedIndices);
+        break;
+      case 'Swap':
+        performSwap(highlightedIndices[0], highlightedIndices[1]);
+        break;
+      case 'Merge':
+        merge(highlightedIndices[0], highlightedIndices[1], highlightedIndices[2]);
+        break;
+      case 'MergeAdd':
+        if (highlightedIndices[0] !== highlightedIndices[1]) {
+          this.moveUpdatesArr.push(new moveUpdate(highlightedIndices[0], highlightedIndices[1]));
+        }
+        mergeAdded(highlightedIndices, this.barXPlacement, this.barWidth, this.barSpacing);
+        break;
+      case 'MergeBack':
+        updateIndexes(this.moveUpdatesArr);
+        mergeBack(highlightedIndices, this.barXPlacement, this.barWidth, this.barSpacing);
+        this.moveUpdatesArr.splice(0);
+        break;
+      case 'Sorted':
+        addClass(
+          'sorted',
+          this.numberArray.map((_, index) => index)
+        );
+        break;
+    }
+
+    addClass('sorted', sortedIndices);
+    this.handleAdditionalData(additionalData);
+
+    stepCounter++;
+  }
+
+  handleAdditionalData(additionalData?: any) {
+    if (!additionalData || !this.currentSortingStep) return;
+
+    // Insertion Sort additional data
+    if (additionalData.insertionIndex) {
+      if (this.insertionIndex === -1) {
+        this.insertionIndex = this.currentSortingStep.additionalData.insertionIndex;
+        addClass('current', [this.insertionIndex]);
+      } else {
+        if (this.currentSortingStep.type == 'Swap') this.insertionIndex = this.currentSortingStep.highlightedIndices[1];
+
+        removeClass('current', [this.insertionIndex]);
+        if (this.currentSortingStep.type !== 'Sorted') {
+          this.insertionIndex = this.currentSortingStep.additionalData.insertionIndex;
+          addClass('current', [this.insertionIndex]);
+        }
+      }
+    }
+
+    // Selection Sort addition data
+    if (additionalData.selection) {
+      if (this.selectionIndex === -1) {
+        this.selectionIndex = this.currentSortingStep.additionalData.selectionIndex;
+        addClass('current', [this.selectionIndex]);
+      } else {
+        if (this.currentSortingStep.type == 'Swap') {
+          removeClass('current', this.currentSortingStep.highlightedIndices);
+        } else {
+          removeClass('current', [this.selectionIndex]);
+
+          if (this.currentSortingStep.type !== 'Sorted') {
+            this.selectionIndex = this.currentSortingStep.additionalData.selectionIndex;
+            addClass('current', [this.selectionIndex]);
+          }
+        }
+      }
+    }
+  }
 }

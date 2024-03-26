@@ -1,4 +1,4 @@
-import { ArrayOrderingOption } from '@/storeModels/ArrayConfigModel';
+import { ArrayOrderingOption } from '@/storeModels/ArrayCreation';
 
 export default interface INumberArrayGenerator {
   generateArray: (order: ArrayOrderingOption, arraySize: number) => number[];

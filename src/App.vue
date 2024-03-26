@@ -1,9 +1,8 @@
 <template>
-  <!--  <SortingVisualiser /> -->
   <div style="float: left">
     <ArrayGenerator />
     <AlgorithmSelector />
-    <!-- <SortingControls /> -->
+    <SortingControls />
   </div>
   <div v-if="numberArraySet">
     <SortingVisualiser />
@@ -14,7 +13,7 @@
 import { defineComponent } from 'vue';
 import ArrayGenerator from './components/ArrayGenerator.vue';
 import AlgorithmSelector from './components/AlgorithmSelector.vue';
-import { useSortingStore } from './store/sortingVisualiserStore';
+import { useSortingStore } from './store/SortingStore';
 import { storeToRefs } from 'pinia';
 
 import SortingControls from './components/SortingControls.vue';
@@ -38,12 +37,4 @@ export default defineComponent({
 });
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-</style>
+<style></style>

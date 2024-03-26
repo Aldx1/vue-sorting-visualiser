@@ -23,10 +23,10 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from 'vue';
-import { useNumberArrayCreationStore } from '@/store/sortingVisualiserStore';
+import { defineComponent, onMounted, ref } from 'vue';
+import { useArrayCreationStore } from '@/store/ArrayCreationStore';
 import { Components } from 'bootstrap-vue-3';
-import { ArrayOrderingOption } from '@/storeModels/ArrayConfigModel';
+import { ArrayOrderingOption } from '@/storeModels/ArrayCreation';
 
 export default defineComponent({
   name: 'ArrayGenerator',
@@ -38,7 +38,7 @@ export default defineComponent({
     'b-form-input': Components.BFormInput,
   },
   setup() {
-    const arrayCreationStore = useNumberArrayCreationStore();
+    const arrayCreationStore = useArrayCreationStore();
     const minArraySize = arrayCreationStore.minimumSize;
     const maxArraySize = arrayCreationStore.maximumSize;
     const arrayOrderOptions = Object(ArrayOrderingOption);
@@ -48,7 +48,7 @@ export default defineComponent({
 
     const setSize = (newValue: string) => {
       arraySize.value = Number(newValue);
-      arrayCreationStore.setArraySize(arraySize.value);
+      arrayCreationStore.setArraySize(arraySize.value); ///???
     };
 
     const setOrder = () => {
@@ -79,3 +79,4 @@ export default defineComponent({
 </script>
 
 <style></style>
+@/store/arrayCreationStore @/storeModels/ArrayCreationModel @/store/ArrayCreationStore@/storeModels/ArrayCreation

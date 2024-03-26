@@ -22,7 +22,7 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue';
 import { Components } from 'bootstrap-vue-3';
-import { useSortingStore } from '@/store/sortingVisualiserStore';
+import { useSortingStore } from '@/store/SortingStore';
 
 export default defineComponent({
   name: 'AlgorithmSelect',
@@ -44,7 +44,6 @@ export default defineComponent({
 
     const selectAlgorithm = () => {
       sortingStore.selectAlgorithm(chosenOne.value);
-      sortingStore.startDisplay = true;
     };
 
     const updateChosenOne = (value: string) => {
@@ -63,3 +62,4 @@ export default defineComponent({
 </script>
 
 <style></style>
+@/store/arrayCreationStore @/store/SortingStore
