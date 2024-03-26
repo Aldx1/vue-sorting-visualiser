@@ -4,5 +4,5 @@ export interface ISortingModel {
   numberArray: number[];
   sortingAlgorithmFactory: ISortingAlgorithmFactory;
   sortingAlgorithm: string;
-  algorithmSet: boolean;
+  sortingKey: Map<string, string>;
 }

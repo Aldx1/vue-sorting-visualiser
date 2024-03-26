@@ -26,7 +26,6 @@ export const useArrayCreationStore = defineStore('arrayCreation', {
 
       const sortingStore = useSortingStore();
       sortingStore.setNumberArray(generatedArray);
-      sortingStore.sort();
     },
   },
   getters: {

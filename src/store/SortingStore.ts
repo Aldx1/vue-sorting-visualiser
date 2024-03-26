@@ -8,9 +8,8 @@ export const useSortingStore = defineStore('sorting', {
     ({
       numberArray: [],
       sortingAlgorithmFactory: new SortingAlgorithmFactory(),
-      algorithmChosen: false,
       sortingAlgorithm: '',
-      algorithmSet: false,
+      sortingKey: new Map(),
     } as ISortingModel),
 
   actions: {
@@ -23,9 +22,10 @@ export const useSortingStore = defineStore('sorting', {
       this.selectAlgorithm(this.sortingAlgorithm == '' ? this.keys[0] : this.sortingAlgorithm);
     },
     selectAlgorithm(choice: string) {
-      const animStore = useAnimationControlsStore();
-      const chosenOne = this.sortingAlgorithmFactory.select(choice);
       this.sortingAlgorithm = choice;
+      const chosenOne = this.sortingAlgorithmFactory.select(choice);
+      this.sortingKey = chosenOne.keyMap;
+      const animStore = useAnimationControlsStore();
       animStore.setHelperBitsAndSteps(this.numberArray, chosenOne.steps);
     },
     startAnim() {

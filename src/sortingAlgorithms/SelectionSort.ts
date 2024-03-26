@@ -13,19 +13,15 @@ export default class SelectionSort implements ISortingAlgorithm {
         swap(array[i], array[minIndex])
     return array`;
 
-  totalOperations: number;
-  operations: Map<string, number>;
-  comparisons: number;
-  swaps: number;
+  keyMap = new Map();
+  operations = new Map();
   steps: SortingStep[] = [];
-  sorted = false;
-  sortedIndices: number[] = [];
 
   constructor() {
-    this.totalOperations = 0;
-    this.operations = new Map<string, number>();
-    this.comparisons = 0;
-    this.swaps = 0;
+    this.keyMap.set('Current index', 'current');
+    this.keyMap.set('Compare', 'compare');
+    this.keyMap.set('Swap', 'swapped');
+    this.keyMap.set('Sorted', 'sorted');
   }
 
   sort(numberArray: number[]) {

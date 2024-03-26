@@ -1,7 +1,7 @@
 <template>
   <bcard tag="article" style="max-width: 14rem; color: white" class="m-2 bg-secondary shadow-lg align-items-sm-center">
-    <btn v-if="!disablePlay" class="bg-primary m-2" @click="playPause">{{ playText }}</btn>
-    <btn v-if="disablePlay" class="bg-primary m-2" @click="restart">Restart</btn>
+    <btn v-if="!disablePlay" class="bg-primary m-2" @click="playPause"><span v-html="playText"></span></btn>
+    <btn v-if="disablePlay" class="bg-primary m-2" @click="restart"><i class="bi bi-rewind"></i> Restart</btn>
     <b-form-input
       id="array-size-range"
       type="range"
@@ -36,8 +36,8 @@ export default defineComponent({
     let animationSpeed = (minSpeed - 100) / 2;
 
     const playText = computed(() => {
-      if (play.value) return 'Pause';
-      else return 'Play';
+      if (play.value) return `<span><i class="bi bi-pause"></i> Pause</span>`;
+      else return `<span><i class="bi bi-play"></i> Play</span>`;
     });
 
     const disablePlay = computed(() => {

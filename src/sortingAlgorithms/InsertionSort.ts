@@ -15,14 +15,15 @@ export default class InsertionSort implements ISortingAlgorithm {
       array[j + 1] = key
     return array`;
 
-  totalOperations = 0;
-  operations: Map<string, number>;
+  keyMap = new Map();
+  operations = new Map();
   steps: SortingStep[] = [];
-  sortedIndices: number[] = [];
-  sorted = false;
 
   constructor() {
-    this.operations = new Map();
+    this.keyMap.set('Current index', 'current');
+    this.keyMap.set('Compare', 'compare');
+    this.keyMap.set('Swap', 'swapped');
+    this.keyMap.set('Sorted', 'sorted');
   }
 
   sort(numberArray: number[]) {

@@ -1,11 +1,9 @@
 import SortingStep from './SortingStep';
 
 export default interface ISortingAlgorithm {
-  sort: (numberArray: number[]) => void;
-  pseudoCode: string;
-  sorted: boolean;
-  totalOperations: number;
+  keyMap: Map<string, string>;
   operations: Map<string, number>;
+  pseudoCode: string;
   steps: SortingStep[];
-  sortedIndices: number[];
+  sort: (numberArray: number[]) => void;
 }

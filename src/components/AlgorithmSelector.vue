@@ -31,7 +31,6 @@ export default defineComponent({
     btn: Components.BButton,
     'b-dropdown': Components.BDropdown,
     'b-dropdown-item': Components.BDropdownItem,
-    'b-form-input': Components.BFormInput,
   },
   setup() {
     const sortingStore = useSortingStore();

@@ -1,4 +1,4 @@
-import SortingStep from '@/sortingAlgorithms/SortingStep';
+import SortingStep, { SortingStepType } from '@/sortingAlgorithms/SortingStep';
 
 export class moveUpdate {
   fromIndex: number;
@@ -61,7 +61,7 @@ function mergeAdded(highlightedIndices: number[], barXPlacement: number, barWidt
 
   const mergeIndex = highlightedIndices[1];
 
-  let transform = `translate(${barXPlacement + mergeIndex * (barWidth + barSpacing)}px, 150px)`;
+  let transform = `translate(${barXPlacement + mergeIndex * (barWidth + barSpacing)}px, 200px)`;
 
   const bar1 = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
 
@@ -124,13 +124,13 @@ export class SortingHelper {
     if (this.currentSortingStep) {
       const { type: sortingStepType, highlightedIndices } = this.currentSortingStep;
       switch (sortingStepType) {
-        case 'Compare':
+        case SortingStepType.COMPARE:
           removeClass('compare', highlightedIndices);
           break;
-        case 'Swap':
+        case SortingStepType.SWAP:
           removeClass('swapped', highlightedIndices);
           break;
-        case 'MergeBack':
+        case SortingStepType.MERGEBACK:
           const indices: number[] = [];
           for (let i = highlightedIndices[0]; i <= highlightedIndices[1]; i++) indices.push(i);
           removeClass('mergeBack', indices);
@@ -144,31 +144,31 @@ export class SortingHelper {
     const { type: sortingStepType, highlightedIndices, sortedIndices, additionalData } = this.currentSortingStep;
 
     switch (sortingStepType) {
-      case 'Compare':
+      case SortingStepType.COMPARE:
         addClass('compare', highlightedIndices);
         break;
-      case 'Swap':
+      case SortingStepType.SWAP:
         performSwap(highlightedIndices[0], highlightedIndices[1]);
         break;
-      case 'Merge':
+      case SortingStepType.SORTED:
+        addClass(
+          'sorted',
+          this.numberArray.map((_, index) => index)
+        );
+        break;
+      case SortingStepType.MERGE:
         merge(highlightedIndices[0], highlightedIndices[1], highlightedIndices[2]);
         break;
-      case 'MergeAdd':
+      case SortingStepType.MERGEADD:
         if (highlightedIndices[0] !== highlightedIndices[1]) {
           this.moveUpdatesArr.push(new moveUpdate(highlightedIndices[0], highlightedIndices[1]));
         }
         mergeAdded(highlightedIndices, this.barXPlacement, this.barWidth, this.barSpacing);
         break;
-      case 'MergeBack':
+      case SortingStepType.MERGEBACK:
         updateIndexes(this.moveUpdatesArr);
         mergeBack(highlightedIndices, this.barXPlacement, this.barWidth, this.barSpacing);
         this.moveUpdatesArr.splice(0);
-        break;
-      case 'Sorted':
-        addClass(
-          'sorted',
-          this.numberArray.map((_, index) => index)
-        );
         break;
     }
 

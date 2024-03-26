@@ -16,14 +16,19 @@ export default class MergeSort implements ISortingAlgorithm {
       right = right[1:] if right else []
     return result + left + right`;
 
-  totalOperations = 0;
+  keyMap = new Map();
   operations = new Map();
   steps: SortingStep[] = [];
-  sorted = false;
-  sortedIndices: number[] = [];
   arrayStore: number[] = [];
 
-  constructor() {}
+  constructor() {
+    this.keyMap.set('Left partition', 'mergeLeft');
+    this.keyMap.set('Right partition', 'mergeRight');
+    this.keyMap.set('Add', 'mergeAdded');
+    this.keyMap.set('Merge Back', 'mergeBack');
+    this.keyMap.set('Compare', 'compare');
+    this.keyMap.set('Sorted', 'sorted');
+  }
 
   sort(numberArray: number[]) {
     this.arrayStore = [...numberArray];
@@ -63,11 +68,11 @@ export default class MergeSort implements ISortingAlgorithm {
       }
 
       if (rightIndex > end || (leftIndex <= middle && this.arrayStore[leftIndex] < this.arrayStore[rightIndex])) {
-        this.steps.push(SortingOperation.mAdd(leftIndex, start + mergeIndex++));
+        this.steps.push(SortingOperation.mergeAdd(leftIndex, start + mergeIndex++));
         mergeArray.push(this.arrayStore[leftIndex]);
         leftIndex++;
       } else {
-        this.steps.push(SortingOperation.mAdd(rightIndex, start + mergeIndex++));
+        this.steps.push(SortingOperation.mergeAdd(rightIndex, start + mergeIndex++));
         mergeArray.push(this.arrayStore[rightIndex]);
         rightIndex++;
       }
@@ -77,6 +82,6 @@ export default class MergeSort implements ISortingAlgorithm {
       this.arrayStore[i] = mergeArray[j];
     }
 
-    this.steps.push(SortingOperation.moveBack(start, end));
+    this.steps.push(SortingOperation.mergeBack(start, end));
   }
 }

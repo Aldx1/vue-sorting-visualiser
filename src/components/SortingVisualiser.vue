@@ -1,10 +1,9 @@
 <template>
   <div
     style="
-      width: 60%;
+      width: 86%;
       height: auto;
-      max-height: 600px;
-      float: left;
+      max-height: 1000px;
       display: inline-block;
       margin: 10px 0px 20px 0;
       padding: 15px;
@@ -74,8 +73,6 @@ export default defineComponent({
       clearInternalInterval();
       resetNumberArray();
       setInternalInterval();
-      play.value = true;
-      animationStore.play = true;
     });
 
     watch(play, () => {

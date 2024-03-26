@@ -10,15 +10,13 @@
   "dependencies": {
     "@floating-ui/vue": "^1.0.6",
     "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "bootstrap-vue": "^2.23.1",
     "bootstrap-vue-3": "^0.5.1",
     "core-js": "^3.8.3",
     "pinia": "^2.1.7",
     "portal-vue": "^3.0.0-beta.0",
-    "vue": "^3.2.13",
-    "vue-kinesis": "^2.0.5",
-    "vue3-moveable": "^0.28.0",
-    "vuedraggable": "^4.1.0"
+    "vue": "^3.2.13"
   },
   "devDependencies": {
     "@babel/plugin-transform-private-methods": "^7.23.3",
