@@ -16,10 +16,10 @@ export class SortingAlgorithmFactory implements ISortingAlgorithmFactory {
 
   constructor() {
     this.sortingAlgorithms = new Map();
-    this.sortingAlgorithms.set('Selection', new SelectionSort());
     this.sortingAlgorithms.set('Bubble', new BubbleSort());
-    this.sortingAlgorithms.set('Insertion', new InsertionSort());
     this.sortingAlgorithms.set('Merge', new MergeSort());
+    this.sortingAlgorithms.set('Insertion', new InsertionSort());
+    this.sortingAlgorithms.set('Selection', new SelectionSort());
 
     this.keys = [];
     this.sortingAlgorithms.forEach((_value: ISortingAlgorithm, key: string) => {
