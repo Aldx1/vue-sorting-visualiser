@@ -2,6 +2,8 @@
 
 A sorting algorithm visualiser app built with Vue and TypeScript.
 
+[Running Example](https://graceful-pavlova-a92413.netlify.app/)
+
 Implemented in a way to pass data between stores and components.
 Just designed like this to get used to Vue stores and refs.
 Used Pinia for the store.
@@ -9,8 +11,6 @@ Used Pinia for the store.
 Could have designed it in a way so the sorting algorithm performed the animation directly.
 Decided to design it so when an array is defined, all sorting algorithms will perform their respective sorts.
 Designed it this way to allow performance comparison on the array.
-
-[Running Example](https://graceful-pavlova-a92413.netlify.app/)
 
 ### todo
 
