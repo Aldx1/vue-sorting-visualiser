@@ -2,7 +2,7 @@
 
 A sorting algorithm visualiser app built with Vue and TypeScript.
 
-[Running Example](https://graceful-pavlova-a92413.netlify.app/)
+[Running Example](https://sorting-algorithm-visualiser-ald.netlify.app/)
 
 Implemented in a way to pass data between stores and components.
 Just designed like this to get used to Vue stores and refs.
