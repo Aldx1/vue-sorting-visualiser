@@ -3,26 +3,25 @@ import { ArrayOrderingOption, IArrayCreationModel } from '@/storeModels/ArrayCre
 import { NumberArrayGenerator } from '@/factories/NumberArrayFactory';
 import { useSortingStore } from './SortingStore';
 
-const minimumElementCount = 5;
-const maximumElementCount = 25;
+const minimumElementCount = 20;
+const maximumElementCount = 50;
 
 export const useArrayCreationStore = defineStore('arrayCreation', {
   state: () =>
     ({
-      ordering: ArrayOrderingOption.RANDOM,
-      elementSize: 15,
+      arrayOrder: ArrayOrderingOption.RANDOM,
+      arraySize: 35,
     } as IArrayCreationModel),
   actions: {
     setArraySize(newSize: number) {
-      this.elementSize = newSize;
+      this.arraySize = newSize;
     },
     setArrayOrder(newOrder: ArrayOrderingOption) {
-      this.ordering = newOrder;
-      this.generateArray();
+      this.arrayOrder = newOrder;
     },
-    async generateArray() {
+    generateArray() {
       const arrayGenerator = new NumberArrayGenerator();
-      const generatedArray = arrayGenerator.generateArray(this.ordering, this.elementSize);
+      const generatedArray = arrayGenerator.generateArray(this.arrayOrder, this.arraySize);
 
       const sortingStore = useSortingStore();
       sortingStore.setNumberArray(generatedArray);

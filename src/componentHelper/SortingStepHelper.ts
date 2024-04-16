@@ -1,6 +1,6 @@
 import SortingStep, { SortingStepType } from '@/sortingAlgorithms/SortingStep';
 
-export class moveUpdate {
+class moveUpdate {
   fromIndex: number;
   toIndex: number;
   element?: HTMLElement;
@@ -10,207 +10,262 @@ export class moveUpdate {
   }
 }
 
-function performSwap(index1: number, index2: number) {
-  // Get the bars
-  const bar1 = document.querySelector(`[data-index="g-${index1}"]`) as HTMLElement;
-  const bar2 = document.querySelector(`[data-index="g-${index2}"]`) as HTMLElement;
+class DOMAnimationManipulation {
+  /// Expect 2 number array [left, right]
+  /// Swap the x positions with transform
+  static performSwap(indexArray: number[]) {
+    const left = indexArray[0];
+    const right = indexArray[1];
+    const leftBar = document.querySelector(`[data-index="g-${left}"]`) as HTMLElement;
+    const rightBar = document.querySelector(`[data-index="g-${right}"]`) as HTMLElement;
 
-  if (bar1 && bar2) {
-    const temp = bar1.style.transform;
-    bar1.style.transform = bar2.style.transform;
-    bar2.style.transform = temp;
+    if (leftBar && rightBar) {
+      const temp = leftBar.style.transform;
+      leftBar.style.transform = rightBar.style.transform;
+      rightBar.style.transform = temp;
 
-    bar1.setAttribute('data-index', `g-${index2}`);
-    bar2.setAttribute('data-index', `g-${index1}`);
+      leftBar.setAttribute('data-index', `g-${right}`);
+      rightBar.setAttribute('data-index', `g-${left}`);
 
-    bar1.classList.add('swapped');
-    bar1.classList.remove('compare');
-    bar2.classList.add('swapped');
-    bar2.classList.remove('compare');
+      leftBar.classList.add('swapped');
+      leftBar.classList.remove('compare');
+      rightBar.classList.add('swapped');
+      rightBar.classList.remove('compare');
+    }
+  }
+
+  /// Updates the elements data index for selector
+  static updateDataIndex(moveUpdates: moveUpdate[]) {
+    moveUpdates.forEach((element) => {
+      const bar = document.querySelector(`[data-index="g-${element.fromIndex}"]`) as HTMLElement;
+      if (bar) {
+        element.element = bar;
+      }
+    });
+
+    moveUpdates.forEach((element) => {
+      if (element.element) {
+        element.element.setAttribute('data-index', `g-${element.toIndex}`);
+      }
+    });
+  }
+
+  // Highlight left and right partitions
+  static merge(start: number, middle: number, end: number) {
+    const leftArrayIndices: number[] = [];
+    const rightArrayIndices: number[] = [];
+    for (let i = start; i <= middle; i++) leftArrayIndices.push(i);
+    for (let i = middle + 1; i <= end; i++) rightArrayIndices.push(i);
+    this.addClass('merge-left', leftArrayIndices);
+    this.addClass('merge-right', rightArrayIndices);
+  }
+
+  // Highlight the array elements added after comparison
+  static mergeAdded(highlightedIndices: number[], barXPlacement: number, barWidth: number, barSpacing: number) {
+    const index = highlightedIndices[0];
+    this.addClass('merge-added', [index]);
+    this.removeClass('merge-left', [index]);
+    this.removeClass('merge-right', [index]);
+
+    const mergeIndex = highlightedIndices[1];
+
+    let transform = `translate(${barXPlacement + mergeIndex * (barWidth + barSpacing)}px, 200px)`;
+
+    const bar = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
+
+    if (bar) {
+      bar.style.transform = transform;
+    }
+  }
+
+  // Handle moving the array back after merge is finished.
+  static mergeBack(
+    highlightedIndices: number[],
+    barXPlacement: number,
+    barWidth: number,
+    barSpacing: number,
+    moveUpdatesArr: moveUpdate[]
+  ) {
+    this.updateDataIndex(moveUpdatesArr);
+    const indices = [];
+    for (let i = highlightedIndices[0]; i <= highlightedIndices[1]; i++) {
+      const mergeIndex = i;
+      let transform = `translate(${barXPlacement + mergeIndex * (barWidth + barSpacing)}px, 0px)`;
+      indices.push(i);
+
+      const bar = document.querySelector(`[data-index="g-${mergeIndex}"]`) as HTMLElement;
+      if (bar) {
+        bar.style.transform = transform;
+      }
+    }
+    this.addClass('merge-back', indices);
+  }
+
+  // Handle moving the array back after merge is finished.
+  static mergeSorted(lastIndex: number) {
+    for (let element = 0; element <= lastIndex; element++) {
+      const bar = document.querySelector(`[data-index="g-${element}"]`) as HTMLElement;
+      if (bar) {
+        const xPlacement = bar.style.transform.split('(')[1].split(',')[0];
+        const transform = `translate(${xPlacement}, 75px)`;
+        bar.style.transform = transform;
+      }
+    }
+  }
+
+  // Add classes to elements
+  static addClass(className: string, indices?: number[]) {
+    indices?.forEach((index) => {
+      const element = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
+      element?.classList.add(className);
+    });
+  }
+
+  // Remove classes from elements
+  static removeClass(className: string, indices: number[]) {
+    indices.forEach((index) => {
+      const element = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
+      element?.classList.remove(className);
+    });
   }
 }
 
-function updateIndexes(moveUpdates?: moveUpdate[]) {
-  moveUpdates?.forEach((element) => {
-    const bar1 = document.querySelector(`[data-index="g-${element.fromIndex}"]`) as HTMLElement;
-    if (bar1) {
-      element.element = bar1;
-    }
-  });
-
-  moveUpdates?.forEach((element) => {
-    if (element.element) {
-      element.element.setAttribute('data-index', `g-${element.toIndex}`);
-    }
-  });
-}
-function merge(start: number, middle: number, end: number) {
-  const leftArrayIndices: number[] = [];
-  const rightArrayIndices: number[] = [];
-  for (let i = start; i <= middle; i++) leftArrayIndices.push(i);
-  for (let i = middle + 1; i <= end; i++) rightArrayIndices.push(i);
-  addClass('mergeLeft', leftArrayIndices);
-  addClass('mergeRight', rightArrayIndices);
-}
-
-function mergeAdded(highlightedIndices: number[], barXPlacement: number, barWidth: number, barSpacing: number) {
-  const index = highlightedIndices[0];
-  addClass('mergeAdded', [index]);
-  removeClass('mergeLeft', [index]);
-  removeClass('mergeRight', [index]);
-
-  const mergeIndex = highlightedIndices[1];
-
-  let transform = `translate(${barXPlacement + mergeIndex * (barWidth + barSpacing)}px, 200px)`;
-
-  const bar1 = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
-
-  if (bar1) {
-    bar1.style.transform = transform;
-  }
-}
-
-function mergeBack(highlightedIndices: number[], barXPlacement: number, barWidth: number, barSpacing: number) {
-  const indices = [];
-  for (let i = highlightedIndices[0]; i <= highlightedIndices[1]; i++) {
-    const mergeIndex = i;
-    let transform = `translate(${barXPlacement + mergeIndex * (barWidth + barSpacing)}px, 0px)`;
-    indices.push(i);
-
-    const bar1 = document.querySelector(`[data-index="g-${mergeIndex}"]`) as HTMLElement;
-    if (bar1) {
-      bar1.style.transform = transform;
-    }
-  }
-  addClass('mergeBack', indices);
-}
-
-function removeClass(className: string, indices: number[]) {
-  indices.forEach((index) => {
-    const element = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
-    element?.classList.remove(className);
-  });
-}
-
-function addClass(className: string, indices?: number[]) {
-  indices?.forEach((index) => {
-    const element = document.querySelector(`[data-index="g-${index}"]`) as HTMLElement;
-    element?.classList.add(className);
-  });
-}
-
-export class SortingHelper {
+// Class to handle displaying the current animation step.
+export class AnimationHelper {
   barXPlacement: number;
   barWidth: number;
   barSpacing: number;
   numberArray: number[];
+  sortingAlgorithm: string;
 
   sortingSteps: SortingStep[] = [];
   currentSortingStep?: SortingStep;
 
-  constructor(barXp: number, barWidth: number, barSpacing: number, numberArray: number[]) {
+  constructor(
+    barXp: number,
+    barWidth: number,
+    barSpacing: number,
+    numberArray: number[],
+    sortingAlgorithm: string,
+    sortingSteps: SortingStep[]
+  ) {
     this.barXPlacement = barXp;
     this.barWidth = barWidth;
     this.barSpacing = barSpacing;
     this.numberArray = numberArray;
+    this.sortingSteps = sortingSteps;
+    this.sortingAlgorithm = sortingAlgorithm;
   }
 
+  // Used for Merge : Keep track of indexes moved to and fro pos'
   moveUpdatesArr: moveUpdate[] = [];
   insertionIndex: number = -1;
   selectionIndex: number = -1;
 
   playStep(stepCounter: number) {
-    // Tidy up previous step
+    this.tidyLastStep();
+    this.playCurrentStep(stepCounter);
+  }
+
+  tidyLastStep() {
     if (this.currentSortingStep) {
-      const { type: sortingStepType, highlightedIndices } = this.currentSortingStep;
+      const { sortingStepType, indices } = this.currentSortingStep;
       switch (sortingStepType) {
         case SortingStepType.COMPARE:
-          removeClass('compare', highlightedIndices);
+          DOMAnimationManipulation.removeClass('compare', indices);
           break;
         case SortingStepType.SWAP:
-          removeClass('swapped', highlightedIndices);
+          DOMAnimationManipulation.removeClass('swapped', indices);
           break;
         case SortingStepType.MERGEBACK:
-          const indices: number[] = [];
-          for (let i = highlightedIndices[0]; i <= highlightedIndices[1]; i++) indices.push(i);
-          removeClass('mergeBack', indices);
-          removeClass('mergeAdded', indices);
+          const startEndIndices: number[] = [];
+          for (let i = indices[0]; i <= indices[1]; i++) startEndIndices.push(i);
+          DOMAnimationManipulation.removeClass('merge-back', startEndIndices);
+          DOMAnimationManipulation.removeClass('merge-added', startEndIndices);
           break;
       }
     }
+  }
 
+  playCurrentStep(stepCounter: number) {
     // Perform current step
     this.currentSortingStep = this.sortingSteps[stepCounter];
-    const { type: sortingStepType, highlightedIndices, sortedIndices, additionalData } = this.currentSortingStep;
+    const { sortingStepType, indices, sortedIndices } = this.currentSortingStep;
 
     switch (sortingStepType) {
       case SortingStepType.COMPARE:
-        addClass('compare', highlightedIndices);
+        DOMAnimationManipulation.addClass('compare', indices);
         break;
       case SortingStepType.SWAP:
-        performSwap(highlightedIndices[0], highlightedIndices[1]);
+        DOMAnimationManipulation.performSwap(indices);
         break;
       case SortingStepType.SORTED:
-        addClass(
+        DOMAnimationManipulation.addClass(
           'sorted',
           this.numberArray.map((_, index) => index)
         );
+        if (this.sortingAlgorithm == 'Merge') DOMAnimationManipulation.mergeSorted(this.numberArray.length - 1);
         break;
       case SortingStepType.MERGE:
-        merge(highlightedIndices[0], highlightedIndices[1], highlightedIndices[2]);
+        DOMAnimationManipulation.merge(indices[0], indices[1], indices[2]);
         break;
       case SortingStepType.MERGEADD:
-        if (highlightedIndices[0] !== highlightedIndices[1]) {
-          this.moveUpdatesArr.push(new moveUpdate(highlightedIndices[0], highlightedIndices[1]));
+        if (indices[0] !== indices[1]) {
+          this.moveUpdatesArr.push(new moveUpdate(indices[0], indices[1]));
         }
-        mergeAdded(highlightedIndices, this.barXPlacement, this.barWidth, this.barSpacing);
+        DOMAnimationManipulation.mergeAdded(indices, this.barXPlacement, this.barWidth, this.barSpacing);
         break;
       case SortingStepType.MERGEBACK:
-        updateIndexes(this.moveUpdatesArr);
-        mergeBack(highlightedIndices, this.barXPlacement, this.barWidth, this.barSpacing);
+        DOMAnimationManipulation.mergeBack(
+          indices,
+          this.barXPlacement,
+          this.barWidth,
+          this.barSpacing,
+          this.moveUpdatesArr
+        );
         this.moveUpdatesArr.splice(0);
         break;
     }
 
-    addClass('sorted', sortedIndices);
-    this.handleAdditionalData(additionalData);
+    DOMAnimationManipulation.addClass('sorted', sortedIndices);
+    this.handleAdditionalData();
 
     stepCounter++;
   }
 
-  handleAdditionalData(additionalData?: any) {
-    if (!additionalData || !this.currentSortingStep) return;
+  handleAdditionalData() {
+    if (!this.currentSortingStep || !this.currentSortingStep.additionalData) return;
 
     // Insertion Sort additional data
-    if (additionalData.insertionIndex) {
+    if (this.currentSortingStep.additionalData.insertionIndex) {
       if (this.insertionIndex === -1) {
         this.insertionIndex = this.currentSortingStep.additionalData.insertionIndex;
-        addClass('current', [this.insertionIndex]);
+        DOMAnimationManipulation.addClass('current', [this.insertionIndex]);
       } else {
-        if (this.currentSortingStep.type == 'Swap') this.insertionIndex = this.currentSortingStep.highlightedIndices[1];
+        if (this.currentSortingStep.sortingStepType == 'Swap') this.insertionIndex = this.currentSortingStep.indices[1];
 
-        removeClass('current', [this.insertionIndex]);
-        if (this.currentSortingStep.type !== 'Sorted') {
+        DOMAnimationManipulation.removeClass('current', [this.insertionIndex]);
+        if (this.currentSortingStep.sortingStepType !== 'Sorted') {
           this.insertionIndex = this.currentSortingStep.additionalData.insertionIndex;
-          addClass('current', [this.insertionIndex]);
+          DOMAnimationManipulation.addClass('current', [this.insertionIndex]);
         }
       }
     }
 
     // Selection Sort addition data
-    if (additionalData.selection) {
+    if (this.currentSortingStep.additionalData.selection) {
       if (this.selectionIndex === -1) {
         this.selectionIndex = this.currentSortingStep.additionalData.selectionIndex;
-        addClass('current', [this.selectionIndex]);
+        DOMAnimationManipulation.addClass('current', [this.selectionIndex]);
       } else {
-        if (this.currentSortingStep.type == 'Swap') {
-          removeClass('current', this.currentSortingStep.highlightedIndices);
+        if (this.currentSortingStep.sortingStepType == 'Swap') {
+          DOMAnimationManipulation.removeClass('current', this.currentSortingStep.indices);
         } else {
-          removeClass('current', [this.selectionIndex]);
+          DOMAnimationManipulation.removeClass('current', [this.selectionIndex]);
 
-          if (this.currentSortingStep.type !== 'Sorted') {
+          if (this.currentSortingStep.sortingStepType !== 'Sorted') {
             this.selectionIndex = this.currentSortingStep.additionalData.selectionIndex;
-            addClass('current', [this.selectionIndex]);
+            DOMAnimationManipulation.addClass('current', [this.selectionIndex]);
           }
         }
       }

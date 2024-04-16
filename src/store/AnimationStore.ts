@@ -1,25 +1,25 @@
-import { SortingHelper } from '@/componentHelper/SortingStepHelper';
+import { AnimationHelper } from '@/componentHelper/SortingStepHelper';
 import SortingStep from '@/sortingAlgorithms/SortingStep';
 import { IAnimationControlModel } from '@/storeModels/Animation';
 import { defineStore } from 'pinia';
 
-const minSpeed = 4000;
-
 export const useAnimationControlsStore = defineStore('animationControls', {
   state: () =>
     ({
-      animationSpeed: 2000,
-      animationStep: 0,
-      play: false,
-      helper: null,
       barXPlacement: 0,
       barSpacing: 0,
       barWidth: 0,
-      maxBarHeight: 200,
+      maxBarHeight: 350,
+      animationSpeed: 500,
+      animationDisplaySpeed: 500,
+      animationStep: 0,
+      play: false,
+      _helper: null,
     } as IAnimationControlModel),
   actions: {
     setAnimationSpeed(newSpeed: number) {
-      this.animationSpeed = newSpeed;
+      this.animationDisplaySpeed = newSpeed;
+      this.animationSpeed = this.minSpeed - newSpeed;
     },
     resetStep() {
       this.animationStep = 0;
@@ -31,50 +31,45 @@ export const useAnimationControlsStore = defineStore('animationControls', {
       if (this.canStepForward) this.play = true;
     },
     incrementStep() {
-      if (this.helper && this.animationStep <= this.helper.sortingSteps.length - 1) this.animationStep++;
-    },
-    decrementStep() {
-      if (this.animationStep >= 0) this.animationStep--;
+      if (this._helper && this.animationStep <= this._helper.sortingSteps.length - 1) this.animationStep++;
     },
     playForwardStep() {
       if (this.animationStep < 0) this.animationStep = 0;
 
       if (this.canStepForward) {
-        this.helper?.playStep(this.animationStep);
+        this._helper?.playStep(this.animationStep);
 
         this.incrementStep();
       }
     },
-    playBackwardStep() {
-      if (this.helper && this.animationStep > this.helper.sortingSteps.length - 1)
-        this.animationStep = this.helper.sortingSteps.length - 1;
-
-      if (this.canStepBack) {
-        this.helper?.playStep(this.animationStep);
-
-        this.decrementStep();
-      }
-    },
-    setHelperBitsAndSteps(numberArray: number[], steps: SortingStep[]) {
+    setHelperBitsAndSteps(numberArray: number[], steps: SortingStep[], sortingAlgorithm: string) {
       this.resetStep();
-      this.barWidth = 700 / numberArray.length;
-      this.barSpacing = 250 / numberArray.length;
-      this.barXPlacement =
-        (950 - (numberArray.length * this.barWidth + (numberArray.length - 1) * this.barSpacing)) / 2;
+      this.setMaxBarHeight(sortingAlgorithm);
+      const arrayLength = numberArray.length;
+      this.barWidth = 700 / arrayLength;
+      this.barSpacing = 250 / arrayLength;
+      this.barXPlacement = (950 - (arrayLength * this.barWidth + (arrayLength - 1) * this.barSpacing)) / 2;
 
-      this.helper = new SortingHelper(this.barXPlacement, this.barWidth, this.barSpacing, numberArray);
-      this.helper.sortingSteps = steps;
+      this._helper = new AnimationHelper(
+        this.barXPlacement,
+        this.barWidth,
+        this.barSpacing,
+        numberArray,
+        sortingAlgorithm,
+        steps
+      );
+    },
+    setMaxBarHeight(algorithm: string): void {
+      if (algorithm && algorithm.toLowerCase() == 'merge') this.maxBarHeight = 150;
+      else this.maxBarHeight = 225;
     },
   },
   getters: {
-    getMinSpeed() {
-      return minSpeed;
-    },
     canStepForward(): boolean {
-      return this.helper != null && this.animationStep <= this.helper.sortingSteps.length - 1;
+      return this._helper != null && this.animationStep <= this._helper.sortingSteps.length - 1;
     },
-    canStepBack(): boolean {
-      return this.animationStep >= 0;
+    minSpeed(): number {
+      return 1000 - 50;
     },
   },
 });

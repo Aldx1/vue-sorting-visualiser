@@ -1,12 +1,15 @@
-import { SortingHelper } from '@/componentHelper/SortingStepHelper';
+import { AnimationHelper } from '@/componentHelper/SortingStepHelper';
 
 export interface IAnimationControlModel {
+  barSpacing: number;
+  barWidth: number;
+  barXPlacement: number;
+  maxBarHeight: number;
+
+  animationDisplaySpeed: number;
   animationSpeed: number;
   animationStep: number;
   play: boolean;
-  helper: SortingHelper | null;
-  barXPlacement: number;
-  barWidth: number;
-  barSpacing: number;
-  maxBarHeight: number;
+
+  _helper: AnimationHelper | null;
 }

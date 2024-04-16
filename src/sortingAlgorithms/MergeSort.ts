@@ -22,11 +22,11 @@ export default class MergeSort implements ISortingAlgorithm {
   arrayStore: number[] = [];
 
   constructor() {
-    this.keyMap.set('Left partition', 'mergeLeft');
-    this.keyMap.set('Right partition', 'mergeRight');
+    this.keyMap.set('Left partition', 'merge-left');
+    this.keyMap.set('Right partition', 'merge-right');
     this.keyMap.set('Compare', 'compare');
-    this.keyMap.set('Merge Inject', 'mergeAdded');
-    this.keyMap.set('Merge Result', 'mergeBack');
+    this.keyMap.set('Merge Inject', 'merge-added');
+    this.keyMap.set('Merge Result', 'merge-back');
     this.keyMap.set('Sorted', 'sorted');
   }
 

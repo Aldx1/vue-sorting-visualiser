@@ -8,14 +8,19 @@ export enum SortingStepType {
 }
 
 export default class SortingStep {
-  type: SortingStepType;
-  highlightedIndices: number[];
+  sortingStepType: SortingStepType;
+  indices: number[];
   sortedIndices?: number[];
   additionalData: any;
-  constructor(type: SortingStepType, highlightedIndices?: number[], sortedIndices?: number[], additionalData?: any) {
-    this.type = type;
+  constructor(
+    sortingStepType: SortingStepType,
+    highlightedIndices?: number[],
+    sortedIndices?: number[],
+    additionalData?: any
+  ) {
+    this.sortingStepType = sortingStepType;
     this.sortedIndices = sortedIndices;
-    this.highlightedIndices = highlightedIndices || [];
+    this.indices = highlightedIndices || [];
     this.additionalData = additionalData; // Optional data specific to the step
   }
 }

@@ -1,46 +1,32 @@
 <template>
-  <div
-    style="
-      width: 86%;
-      height: auto;
-      max-height: 1000px;
-      display: inline-block;
-      margin: 10px 0px 20px 0;
-      padding: 15px;
-      border-style: double;
-      border-radius: 10px;
-    "
-    class="shadow-lg"
-  >
-    <svg viewBox="0 0 950 500" style="align-items: center">
-      <g
-        v-for="(value, index) in numberArray"
-        class="elem"
-        :key="index"
-        :id="'g-' + index"
-        :data-index="'g-' + index"
-        :style="{
-          transform: `translate(${barXPlacement + index * (barWidth + barSpacing)}px, 0)`,
-        }"
-      >
-        <rect :y="maxBarHeight - (value + 15)" :width="barWidth" :height="value + 15" rx="0.3rem" />
-        <text :x="barWidth / 2" :y="maxBarHeight + 20">
-          {{ value }}
-        </text>
-      </g>
-    </svg>
-  </div>
+  <svg viewBox="0 0 950 500">
+    <g
+      v-for="(value, index) in numberArray"
+      class="elem"
+      :key="index"
+      :id="'g-' + index"
+      :data-index="'g-' + index"
+      :style="{
+        transform: `translate(${barXPlacement + index * (barWidth + barSpacing)}px, 0)`,
+      }"
+    >
+      <rect :y="maxBarHeight - (value + 15)" :width="barWidth" :height="value + 15" rx="0.3rem" />
+      <text :x="barWidth / 2" :y="maxBarHeight + 40" class="svg-group-text">
+        {{ value }}
+      </text>
+    </g>
+  </svg>
 </template>
 
 <script lang="ts">
-import { defineComponent, watch } from 'vue';
+import { defineComponent, onMounted, onUnmounted, watch } from 'vue';
 import { useSortingStore } from '@/store/SortingStore';
 import { storeToRefs } from 'pinia';
 
 import { useAnimationControlsStore } from '@/store/AnimationStore';
 
 export default defineComponent({
-  name: 'SortingVisualiser',
+  name: 'AnimationSVG',
 
   setup() {
     const sortingStore = useSortingStore();
@@ -111,6 +97,15 @@ export default defineComponent({
         }
       });
     };
+
+    onMounted(() => {
+      clearInternalInterval();
+      setInternalInterval();
+    });
+
+    onUnmounted(() => {
+      clearInternalInterval();
+    });
 
     return { numberArray, barWidth, barSpacing, maxBarHeight, barXPlacement };
   },

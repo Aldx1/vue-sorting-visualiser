@@ -6,6 +6,6 @@ export enum ArrayOrderingOption {
 }
 
 export interface IArrayCreationModel {
-  elementSize: number;
-  ordering: ArrayOrderingOption;
+  arraySize: number;
+  arrayOrder: ArrayOrderingOption;
 }
