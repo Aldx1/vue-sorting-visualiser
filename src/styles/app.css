@@ -96,9 +96,9 @@ justify-content: space-between;
 }
 
 /* Mobile */
-@media screen and (orientation: portrait) and (max-aspect-ratio: 0.7)  {
+@media screen and (orientation: portrait) and (max-aspect-ratio: 0.65)  {
   :root{
-  font-size: 2vw;
+  font-size: 2.7vw;
   }
 }
 

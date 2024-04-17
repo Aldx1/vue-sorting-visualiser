@@ -18,7 +18,7 @@ export const useWindowSizeStore = defineStore('windowSize', {
       return this.windowHeight < this.windowWidth;
     },
     isMobile(): boolean {
-      return !this.isLandscape && this.windowWidth / this.windowHeight < 0.7;
+      return !this.isLandscape && this.windowWidth / this.windowHeight < 0.65;
     },
     isWidescreen(): boolean {
       return this.isLandscape && this.windowWidth / this.windowHeight > 1.5;
